@@ -19,7 +19,8 @@ migrations <- tbl(dbcon, 'migration_audit') %>%
   data.frame %>% 
   .$uuid
 
-tbl <- tbl(fhcon, 'odk_logger_instance') %>%
+instances <- tbl(fhcon, 'odk_logger_instance') %>%
+  filter(!uuid %in% migrations) %>%
   select(xml, uuid, xform_id) %>%
   data.frame()
 
