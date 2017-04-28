@@ -4,19 +4,18 @@ library(RPostgreSQL)
 
 options(stringsAsFactors = FALSE)
 
-ffs_yields_maize_17_sep_2015_v1 <- function(xml, con){
+ffs_yields_maize_17_sep_2015_v1 <- function(con, xml, test=FALSE){
   xml <- xmlToList(xml)
   
   ###########
   #yields_hh
   ###########
   
-  metadata_ <- xml$metadata
-  
   uuid <- gsub('uuid:', '', xml$meta$instanceID)
   survey_uuid <- uuid
   
   metadata_ <- grabEnds(xml$metadata)
+  metadata_$hhid <- NULL
   
   basedata_ <- xml[c('country', 'region', 'district', 'number_of_fields')]
 
@@ -26,11 +25,11 @@ ffs_yields_maize_17_sep_2015_v1 <- function(xml, con){
   hh_refno <- getHHref(con, basedata_$country, metadata_$landscape_no,
                        metadata_$eplot_no, metadata_$hh_no)
   
-  yields_hh$hh_refno <- getRound(basedata_$country, metadata_$data_collection_date)
+  round <- getRound(basedata_$country, metadata_$data_collection_date)
   
-  yields_hh <- data.frame(uuid, survey_uuid, country, metadata_, number_of_fields,
+  yields_hh <- data.frame(uuid, survey_uuid, hh_refno, round, metadata_, basedata_,
                           selected_first_field, selected_second_field) %>%
-    select(-farmers_first_name, farmers_last_name)
+    select(-farmers_first_name, -farmers_last_name)
 
   ################
   #yields_hh_pii
@@ -70,6 +69,7 @@ ffs_yields_maize_17_sep_2015_v1 <- function(xml, con){
     
     b_meta_ <- grabEnds(i) %>%
       expandSelMulti('b_126_a', c('1', '2', '3', '4', '5', '90'))
+    b_meta_$b_12_sum <- NULL
     
     b_11_ <- cutPrefix(i$b_11_group, 4) %>% 
       grabEnds
@@ -93,14 +93,16 @@ ffs_yields_maize_17_sep_2015_v1 <- function(xml, con){
     b_101 <- cutPrefix(i$`101_grp`, 4) %>%
       .[['101']]
 
-    gpsne_ <- cutSuffix(i$b_11_group$gpsne_group_f1, 3) %>%
+    b_11_group <- cutPrefix(i$b_11_group, 4)
+    
+    gpsne_ <- cutSuffix(b_11_group$ne_group, 3) %>%
       grabEnds
     
     gpsne_$gpsne_lat <- makeGps(gpsne_$gpsne_ns, gpsne_$gpsne_lat)
     gpsne_$gpsne_long <- makeGps(gpsne_$gpsne_ew, gpsne_$gpsne_long)
     
-    gpsne_$gpsne_ns <- NULL
-    gpsne_$gpsne_ew <- NULL
+    #gpsne_$gpsne_ns <- NULL
+    #gpsne_$gpsne_ew <- NULL
     
     df <- data.frame(b_meta_, b_11_, b_12_, b_13_, crop, b_101, gpsne_)
                        
@@ -115,16 +117,47 @@ ffs_yields_maize_17_sep_2015_v1 <- function(xml, con){
   yields_field <- merge(secadf, secbdf, all.x=T) %>% 
     select(-gpsne_lat, -gpsne_long, -gpsne_accuracy)
   
+  ##################
   #yields_field_pii
+  ##################
   yields_field_pii <- merge(secadf, secbdf, all.x=T) %>% 
     select(uuid, gpsne_lat, gpsne_long, gpsne_accuracy)
   
-  insertDF(con, yields_hh, 'yields_hh')
-  insertDF(con, yields_hh_pii, 'yields_hh_pii')
-  insertDF(con, yields_field, 'yields_field')
-  insertDF(con, yields_field_pii, 'yields_field_pii')
+  ##################################
+  #Implement Rules across columns
+  #################################
   
-  dbSendQuery(con, paste0('INSERT INTO migration audit (\'', 
+  yields_field$a_5[which(!yields_field$a_5)] <- FALSE
+  yields_field$a_6[which(!yields_field$a_6)] <- FALSE
+  
+  yields_field$b_110[yields_field$b_107 == '2'] <- 0
+  yields_field$b_115[yields_field$b_112 == '2'] <- 0
+  yields_field$b_120[yields_field$b_117 == '2'] <- 0
+  
+  yields_field$b_122_b_1 <- grepl('1', yields_field$b_122_b)
+  yields_field$b_122_b_2 <- grepl('2', yields_field$b_122_b)
+  
+  yields_field$b_126_a_1[is.na(yields_field$b_126_a_1) & yields_field$b_126 == '1']
+  yields_field$b_126_a_2[is.na(yields_field$b_126_a_1) & yields_field$b_126 == '2']
+  yields_field$b_126_a_3[is.na(yields_field$b_126_a_1) & yields_field$b_126 == '3']
+  yields_field$b_126_a_4[is.na(yields_field$b_126_a_1) & yields_field$b_126 == '4']
+  yields_field$b_126_a_5[is.na(yields_field$b_126_a_1) & yields_field$b_126 == '5']
+  yields_field$b_126_a_90[is.na(yields_field$b_126_a_1) & yields_field$b_126 == '90']
+  
+  ##############
+  #Insert Data
+  ##############
+  insertDF(con, yields_hh, 'yields_hh', test)
+  insertDF(con, yields_hh_pii, 'yields_hh_pii', test)
+  insertDF(con, yields_field, 'yields_field', test)
+  insertDF(con, yields_field_pii, 'yields_field_pii', test)
+  
+  if(test){
+    dbSendQuery(con$con, paste0("DELETE FROM migration_audit WHERE uuid = '",
+                                gsub('uuid:', '', xml$meta$instanceID), 
+                                "';"))
+  }
+  dbSendQuery(con$con, paste0('INSERT INTO migration_audit VALUES (\'', 
                           gsub('uuid:', '', xml$meta$instanceID), "',",
                           "'ffs_yields_paddy_maize_17_sep_2015_v1','",
                           xml$today,"',current_date);")) 

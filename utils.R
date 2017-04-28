@@ -82,19 +82,27 @@ makeGps <- function(sign, value){
   return(value)
 }
 
-insertCollapse <- function(vect){
+insertCollapse <- function(vect, vars){
   #must be a list!
   i <- 0
+  vars <- vars[match(names(vect), vars$column_name), ]
+  
   for (v in vect){
     i <- i + 1
     
-    if(is.logical(v)){
-      v <- ifelse(v, 't', 'f')
-    }
-    if(is.na(as.numeric(v))){
-      v <- paste0("'", v, "'")
-    }
-    if(names(vect)[i] %in% c('eplot_no', 'hh_no')){
+    type <- vars$data_type[i]
+    
+    if (is.na(v)){
+      v <- 'NULL'
+    } else if(!is.logical(v) & type=='boolean'){
+      v <- ifelse(v=='1', "'t'", 
+                  ifelse(v=='2', "'f'", 
+                         stop(paste0('Column type is bool but value isn\'t. on ', names(vars$column_name[i])))))
+    } else if(is.logical(v)){
+      v <- ifelse(v, "'t'", "'f'")
+    } else if(suppressWarnings(is.na(as.numeric(v)))){
+      v <- paste0("'", gsub("'", "''", v), "'")
+    } else if(names(vect)[i] %in% c('eplot_no', 'hh_no', 'region', 'district')){
       v <- paste0("'", v, "'")
     }
     vect[i] <- v
@@ -102,33 +110,52 @@ insertCollapse <- function(vect){
   paste0(vect, collapse = ', ') 
 }
 
-insertDF <- function(con, df, tablename){
+insertDF <- function(con, df, tablename, test){
+  #Filter out data from ODK that does not go into db
+  #Format sql string, casting variables as appropriate
+  #Check that uuid does not already exist, if it does and is a test run, then delete uuid
+  #Insert data 
+  
+  vars <- tbl(con, sql("SELECT * FROM information_schema.columns")) %>%
+    filter(table_name == tablename) %>%
+    select(column_name, data_type) %>%
+    data.frame
+  
+  df <- df[names(df) %in% vars$column_name]
+  
+  vars <- vars[vars$column_name %in% names(df), ]
+  
   str <- paste0('INSERT INTO ', tablename,
                 '(', paste0(names(df), collapse=','), 
                 ') VALUES ')
   rows <- NULL
   for (i in 1:nrow(df)){
     sel <- df[i, ] %>% as.list
-    rowstr <- insertCollapse(sel)
+    rowstr <- insertCollapse(sel, vars)
     rows <- c(rows, paste0('(', rowstr, ')'))
   }
   
   str <- paste0(str, paste(rows, collapse=','), ';')
   
-  uuids <- tbl(con, tablename) %>%
-    select(uuid) %>% data.frame %>% .$uuid
-  
-  for (u in df$uuid){
-    if(u %in% uuids){
-      stop(paste0('uuid ', u, 'already exists in ', tablename))
+  if (test){
+    for (i in 1:nrow(df)){
+      dbSendQuery(con$con, paste0("DELETE FROM ", tablename, " WHERE uuid = '", df$uuid, "';"))
     }
   }
   
-  dbSendQuery(con, str)
+  if (!test){
+    uuids <- tbl(con, tablename) %>%
+    
+    for (u in df$uuid){
+      if(u %in% uuids){
+        stop(paste0('uuid ', u, 'already exists in ', tablename))
+      }
+    }
+  }
+  
+  dbSendQuery(con$con, str)
   
 }
-
-
 
 
 
