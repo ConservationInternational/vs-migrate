@@ -1,9 +1,3 @@
-getHash <- function(){
-  c(letters, LETTERS, seq(0,9)) %>%
-    sample(11, replace=T) %>%
-    paste0(collapse='')
-}
-
 getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
   hhref <- tbl(dbcon, 'household_ref') %>%
     filter(country==country_ & landscape_no==landscape_no_ & eplot_no==eplot_no_ & hh_no==hh_no_) %>%
@@ -14,12 +8,16 @@ getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
   }
   else{
     ids <- tbl(dbcon, 'household_ref') %>%
-      select(id)
+      select(id) %>%
+      data.frame
     
-    new_id <- getHash()
+    new_id <- paste0(country_, '-', landscape_no_, '-H01') 
     
-    while(newid %in% ids$id){
-      new_id <- getHash()
+    i <- 1
+    while(new_id %in% ids$id){
+      new_id <- paste0(country_, '-', landscape_no_, '-H', substr(100 + i, 2,3))
+      print(new_id)
+      i <- i + 1
     }
     
     dbSendQuery(dbcon$con, paste0("INSERT INTO household_ref VALUES (", 
@@ -30,7 +28,6 @@ getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
                                                       
   }
 }
-
 
 getRound <- function(country, date){
   if (country == 'RWA' & date > '2016-11-01'){

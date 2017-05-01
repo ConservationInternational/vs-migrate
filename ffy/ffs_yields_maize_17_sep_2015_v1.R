@@ -28,15 +28,7 @@ ffs_yields_maize_17_sep_2015_v1 <- function(con, xml, test=FALSE){
   round <- getRound(basedata_$country, metadata_$data_collection_date)
   
   yields_hh <- data.frame(uuid, survey_uuid, hh_refno, round, metadata_, basedata_,
-                          selected_first_field, selected_second_field) %>%
-    select(-farmers_first_name, -farmers_last_name)
-
-  ################
-  #yields_hh_pii
-  ################
-  
-  yields_hh_pii <- data.frame(uuid, metadata_) %>%
-    select(uuid, farmers_first_name, farmers_last_name)
+                          selected_first_field, selected_second_field)
 
   ################
   #yields_field
@@ -114,14 +106,7 @@ ffs_yields_maize_17_sep_2015_v1 <- function(con, xml, test=FALSE){
   fields <- c(selected_first_field, selected_second_field)
   secbdf$field_no <- fields[fields != 'None']
   
-  yields_field <- merge(secadf, secbdf, all.x=T) %>% 
-    select(-gpsne_lat, -gpsne_long, -gpsne_accuracy)
-  
-  ##################
-  #yields_field_pii
-  ##################
-  yields_field_pii <- merge(secadf, secbdf, all.x=T) %>% 
-    select(uuid, gpsne_lat, gpsne_long, gpsne_accuracy)
+  yields_field <- merge(secadf, secbdf, all.x=T)
   
   ##################################
   #Implement Rules across columns
