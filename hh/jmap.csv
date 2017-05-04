@@ -1,0 +1,14 @@
+variable,source
+02,Private outside standpipe/tap
+03,PUBLIC STANDPIPE/TAP
+04,Neighbouring household
+05,Water vendor
+06,Subsidized water vending station
+07,Water truck/Tanker service
+08,Protected well with pump
+09,Unprotected well with pump
+10,Protected well without pump
+11,Unproteted well without pump
+12,"River, lake, spring, pond"
+13,Rainwater
+14,Other (specified source)

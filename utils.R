@@ -107,11 +107,18 @@ insertCollapse <- function(vect, vars){
   paste0(vect, collapse = ', ') 
 }
 
-insertDF <- function(con, df, tablename, test){
+insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
   #Filter out data from ODK that does not go into db
   #Format sql string, casting variables as appropriate
   #Check that uuid does not already exist, if it does and is a test run, then delete uuid
-  #Insert data 
+  #Insert data
+  
+  for (i in 1:ncol(df)){
+    print(i)
+    if (class(df[, i]) == 'factor'){
+      df[, i] <- as.character(df[ ,i])
+    }
+  }
   
   vars <- tbl(con, sql("SELECT * FROM information_schema.columns")) %>%
     filter(table_name == tablename) %>%
@@ -139,18 +146,23 @@ insertDF <- function(con, df, tablename, test){
       dbSendQuery(con$con, paste0("DELETE FROM ", tablename, " WHERE uuid = '", df$uuid, "';"))
     }
   }
-  
+
   if (!test){
     uuids <- tbl(con, tablename) %>%
-    
+      data.frame
+
     for (u in df$uuid){
-      if(u %in% uuids){
+      if(u %in% uuids$uuid){
         stop(paste0('uuid ', u, 'already exists in ', tablename))
       }
     }
   }
   
   dbSendQuery(con$con, str)
+  
+  if (log){
+  #Write to migration audit table
+  }
   
 }
 

@@ -1,0 +1,57 @@
+itemcode,item,period
+l_101,Cigarettes or tobacco,week
+l_102,Matches,week
+l_103,Public transport,week
+l_199,Meals outiside the home,week
+l_204,Water,week
+l_206,"Phone Expenditure (repair, airtime, charging)",week
+l_207,Charcoal,week
+l_207a,Newspapers,week
+l_201,Kerosene,month
+l_202,"Electricity, including electricity vouchers",month
+l_203,Gas (for lighting/cooking),month
+l_203a,"Medical fees (medication, visits)",month
+l_203b,Mosquito repellant,month
+l_205,Petrol or diesel,month
+l_208,"Milling fees, grain",month
+l_209,Bar soap (body soap or clothes soap),month
+l_211,"Toothpaste, toothbrush",month
+l_212,Toilet paper,month
+l_213,"Glycerine, Vaseline, skin creams",month
+l_214,"Other personal products (shampoo, razor blades, cosmetics, hair products, etc.)",month
+l_215,"Household cleaning products (dish soap, toilet cleansers, etc.)",month
+l_216,Light bulbs,month
+l_217,"Internet, postage stamps or other postal fees",month
+l_217a,"Wedding, funeral attendance expenses",month
+l_218,"Donation - to church, charity, beggar, etc.",month
+l_219,"Motor vehicle service, repair, or parts",month
+l_220,"Bicycle service, repair, or parts",month
+l_221,Wages paid to servants,month
+l_222,Mortgage - regular payment to purchase house,month
+l_223,Repairs & maintenance to dwelling,month
+l_224,"Repairs to household and personal items (radios, watches, etc.)",month
+l_224a,Spiritual Expenses,month
+l_224b,"Hairdressing, haircuts, personal care (pedicures, manicures)",month
+l_301,"Carpet, linoleum, rugs, drapes, curtains",year
+l_302,"Linen - towels, sheets, blankets",year
+l_303,Mat - sleeping or for drying maize flour,year
+l_304,Mosquito net,year
+l_305,Mattress,year
+l_306,"Sports & hobby equipment, musical instruments, toys",year
+l_307,"Film, film processing, camera",year
+l_308,"Building items - cement, bricks, timber, iron sheets, tools, etc.",year
+l_309,Council rates,year
+l_310,"Insurance - health (NHIS, etc.), auto,
+    home, life",year
+l_311,Losses to theft (value of items or cash lost),year
+l_312,Fines or legal fees,year
+l_313,Bride price /Marriage costs ,year
+l_314,Funeral costs,year
+l_315,Other costs not stated elsewhere,year
+l_316,Repairs to consumer durables,year
+l_317,"Taxes for income, property, etc.",year
+l_320,Land purchases,year
+l_320a,School Fees,year
+l_320b,"School uniform, books and supplies",year
+l_318,"Wood poles, bamboo",year
+l_319,Grass for thatching roof or other use,year
