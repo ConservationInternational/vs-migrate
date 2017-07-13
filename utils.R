@@ -1,5 +1,5 @@
 getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
-  hhref <- tbl(dbcon, 'household_ref') %>%
+  hhref <- tbl(dbcon, 'ref_household') %>%
     filter(country==country_ & landscape_no==landscape_no_ & eplot_no==eplot_no_ & hh_no==hh_no_) %>%
     data.frame()
   
@@ -7,7 +7,7 @@ getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
     return(hhref$id)
   }
   else{
-    ids <- tbl(dbcon, 'household_ref') %>%
+    ids <- tbl(dbcon, 'ref_household') %>%
       select(id) %>%
       data.frame
     
@@ -166,8 +166,56 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
   
 }
 
+codetext <- function(code, list.name, codedf, country, region){
+  
+  codedf <- codedf[codedf$`list name` == list.name, ]
+  
+  if(!missing(country)){
+    codedf <- codedf[df$country == country, ]
+  }
+  if(!missing(region)){
+    codedf <- codedf[df$region == region, ]
+  }
+  
+  codedf$label[match(code, df$name)]
+  
+}
 
+vs.data.frame <- function(...){
+  dots <- substitute(list(...))[-1]
+  L <- list(...)
+  names <- sapply(dots, deparse)
+  
+  for (l in 1:length(L)){
+    if (is.null(L[[l]]) | identical(L[[l]], character(0))| identical(L[[l]], logical(0))){
+      L[[l]] <- NA
+    }
+  }
+  
+  DF <- as.data.frame(matrix(unlist(L), 1, dimnames = list(NULL, names)))
+  DF
+}
 
+getxmlrandom <- function(){
+  xml <- instances$xml[sample(1:nrow(instances), 1)]
+  xml <- xmlToList(xml)
+  return(xml)
+}
 
+getxmlsection <- function(name){
+  while(is.null(xml[[name]])){
+    xml <- getnewxml()
+  }
+  xml
+}
 
-
+getxmluuid <- function(uuid){
+  df <- tbl(fhcon, 'odk_logger_instance') %>%
+    filter(uuid == uuid) %>%
+    select(xml, uuid, xform_id) %>%
+    collect
+  
+  xml <- df$xml[df$uuid == uuid]
+  xml <- xmlToList(xml)
+  xml
+}
