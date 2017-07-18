@@ -202,9 +202,20 @@ getxmlrandom <- function(){
   return(xml)
 }
 
+getxmlindb <- function(){
+  sel <- tbl(fhcon, 'odk_logger_instance') %>%
+    filter((uuid %in% migrations)) %>%
+    select(xml, uuid, xform_id) %>%
+    collect %>%
+    filter(xform_id %in% ids)
+  
+  sel$xml[sample(1:nrow(sel), size = 1)] %>%
+    xmlToList
+}
+
 getxmlsection <- function(name){
   while(is.null(xml[[name]])){
-    xml <- getnewxml()
+    xml <- getxmlrandom()
   }
   xml
 }
