@@ -308,105 +308,331 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   agric_field_permcrop <- agric_field_permcrop %>%
     filter(crop_name != 'None')
 
-  ############################
-  #agric_field_season
-  ############################
+  ######################################################
+  #agric_field_season & 
+  #agric_field_season_individual &
+  #piiname_agric_field_season_individual
+  ######################################################
   
-  agric_field_season <- data.frame()
-  ct <- 1
+  agric_field_season_a <- data.frame()
+  #long rainy
   for(i in xml$fr[names(xml$fr)=='fr_repeat']){
-    uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6bii_field_id))
-    parent_uuid <- survey_uuid
+    uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fr_field_id), '/a')
+    parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fr_field_id))
     survey_uuid <- survey_uuid
     field_no <- i$fr_field_id
     season <- 'long_rainy'
     ag3a_03 <- i$fr_2b1 %>%
       codetext('landuse', codedf)
     ag3a_03_other <- i$fr2b1_other
+    ag3a_07_1 <- i$fr_2b2 %>%
+      codetext('crops', codedf)
     
-  for(i in xml$
-    ag3a_04 <- 
-  ag3a_07_1
-  ag3a_10
-  ag3a_14
-  ag3a_15_1
-  ag3a_15_2
-  ag3a_17
-  ag3a_18
-  ag3a_18_other
-  ag3a_20
-  ag3a_20_other
-  ag31_13
-  ag3a_23
-  ag3a_24
-  ag3a_24_other
-  ag3a_28
-  ag3a_34
-  ag3a_33_17
-  ag3a_39
-  ag3a_39a
-  ag3a_39a_other
-  ag3a_39b
-  ag3a_39b_other
-  ag3a_40
-  ag3a_41
-  ag3a_42
-  ag3a_43
-  ag3a_45
-  ag3a_46
-  ag3a_46_other
-  ag3a_47
-  ag3a_48
-  ag3a_49
-  ag3a_52
-  ag3a_53
-  ag3a_53_other
-  ag3a_54
-  ag3a_55
-  ag3a_56
-  ag3a_58
-  ag3a_59
-  ag3a_59_other
-  ag3a_60_1
-  ag3a_60_2
-  ag3a_61
-  ag3a_72_1a
-  ag3a_72_2a
-  ag3a_72_3a
-  ag3a_72_4a
-  ag3a_72_1b
-  ag3a_72_2b
-  ag3a_72_3b
-  ag3a_72_4b
-  ag3a_72_1c
-  ag3a_72_2c
-  ag3a_72_3c
-  ag3a_72_4c
-  ag3a_72_1d
-  ag3a_72_2d
-  ag3a_72_3d
-  ag3a_72_4d
-  ag3a_39_1
-  ag3a_39_2
-  ag3a_39_4
-  ag3a_39_5
-  ag3a_39_6
-  ag3a_39_7
-  ag3a_39_8
-  ag3a_45_dap
-  ag3a_45_urea
-  ag3a_45_tsp
-  ag3a_45_can
-  ag3a_45_sa
-  ag3a_45_npk
-  ag3a_45_mrp
+    tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no, season,
+                            ag3a_03, ag3a_03_other, ag3a_07_1)
+    agric_field_season_a <- bind_rows(agric_field_season_a, tempdf)
+  }
   
+  #short rainy
+  for(i in xml$fr[names(xml$fr)=='fr_repeat']){
+    uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fr_field_id), '/b')
+    parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fr_field_id))
+    survey_uuid <- survey_uuid
+    field_no <- i$fr_field_id
+    season <- 'short_rainy'
+    ag3a_03 <- i$fr_2c %>%
+      codetext('landuse', codedf)
+    ag3a_03_other <- i$fr_2c_other
+    ag3a_07_1 <- i$fr_2d %>%
+      codetext('crops', codedf)
+    
+    tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no, season,
+                            ag3a_03, ag3a_03_other, ag3a_07_1)
+    agric_field_season_a <- bind_rows(agric_field_season_a, tempdf)
+  }
   
+  agric_field_season_individual <- data.frame()
+  piiname_agric_field_season_individual <- data.frame()
+  agric_field_season_b <- data.frame()
+  uuidct <- 1
+  #long rainy
+  for(i in xml$fd3_group_label[names(xml$fd3_group_label)=='fd3_repeat']){
+    season <- 'long_rainy'
+    field_no <- i$fd3_field_id
+    ag3a_03 <- i$fd3_3 %>%
+      codetext('landuse', codedf)
+    ag3a_03_other <- i$fd3_3_other
+    ag3a_04 <- i$fd3_4
+    ag3a_07_1 <- i$fd3_5 %>%
+      codetext('crops', codedf)
+    ag3a_10 <- i$fd3_6 %>%
+      codetext('fd3_6', codedf)
+    ag3a_14 <- i$fd3_3_skip$fd32_7
+    ag3a_15_1 <- i$fd3_3_skip$fd32_8$fd32_8_1 %>%
+      codetext('fd32_8', codedf)
+    ag3a_15_2 <- i$fd3_3_skip$fd32_8$fd32_8_2 %>%
+      codetext('fd32_8', codedf)
+    ag3a_17 <- i$fd32_9
+    ag3a_18 <- i$fd32_1011$fd32_10 %>%
+      codetext('fd32_10', codedf)
+    ag3a_18_other <- i$fd32_1011$fd32_10_other
+    ag3a_20 <- i$fd32_1011$fd32_11 %>%
+      codetext('fd32_11', codedf)
+    ag3a_20_other <- i$fd32_1011$fd32_10_other
+    ag31_13 <- i$fd32_1011$fd32_12
+    ag3a_23 <- i$fd32_13
+    ag3a_24 <- i$fd33_14 %>%
+      codetext('fd33_14', codedf)
+    ag3a_24_other <- i$fd33_14_other
+    ag3a_28 <- i$fd33_15 %>%
+      codetext('fd33_15', codedf)
+    ag3a_34 <- i$fd33_16 %>%
+      codetext('fd33_16', codedf)
+    ag3a_33_17 <- i$fd33_17
+    ag3a_39 <- i$fd33_18_1
+    ag3a_39a <- i$fd3_organic$fd33_18b %>%
+      codetext('fd33_18b', codedf)
+    ag3a_39a_other <- i$fd3_organic$fd33_18b_other
+    ag3a_39b <- i$fd3_organic$fd33_18c %>%
+      codetext('fd33_18c', codedf)
+    ag3a_39b_other <- i$fd3_organic$fd33_18c_other
+    ag3a_40 <- i$fd3_organic$fd34$fd34_19
+    ag3a_41 <- i$fd3_organic$fd34$fd34_20
+    ag3a_42 <- i$fd3_organic$fd34_2$fd34_21
+    ag3a_43 <- i$fd3_organic$fd34_2$fd34_22
+    ag3a_45 <- i$fd35_23
+    ag3a_46 <- i$fd35_inorg$fd35_24 %>%
+      codetext('fd35_24', codedf)
+    ag3a_46_other <- i$fd35_inorg$fd35_24_other
+    ag3a_47 <- i$fd35_inorg$fd35_25
+    ag3a_48 <- i$fd35_inorg$fd35_26
+    ag3a_49 <- i$fd35_inorg$fd35_27
+    ag3a_52 <- i$fd36_28
+    ag3a_53 <- i$fd36_inorg$fd36_29 %>%
+      codetext('fd36_29', codedf)
+    ag3a_53_other <- i$fd36_inorg$fd36_29_other
+    ag3a_54 <- i$fd36_inorg$fd36_30
+    ag3a_55 <- i$fd36_inorg$fd36_31
+    ag3a_56 <- i$fd36_inorg$fd36_32
+    ag3a_58 <- i$fd37_33
+    ag3a_59 <- i$fd37_pest$fd37_34 %>%
+      codetext('fd37_34', codedf)
+    ag3a_59_other <- i$fd37_pest$fd37_34_other
+    ag3a_60_1 <- i$fd37_pest$fd37_35_1
+    ag3a_60_2 <- i$fd37_pest$fd37_35_2 %>%
+      codetext('fd37_35', codedf)
+    ag3a_61 <- i$fd37_pest$fd37_36
+    ag3a_72_1a <- i$fd38_38$fd38_38_1$fd38_38_1_1
+    ag3a_72_2a <- i$fd38_38$fd38_38_1$fd38_38_1_2
+    ag3a_72_3a <- i$fd38_38$fd38_38_1$fd38_38_1_3
+    ag3a_72_4a <- i$fd38_38$fd38_38_1$fd38_38_1_4
+    ag3a_72_1b <- i$fd38_38$fd38_38_2$fd38_38_1_1
+    ag3a_72_2b <- i$fd38_38$fd38_38_2$fd38_38_1_2
+    ag3a_72_3b <- i$fd38_38$fd38_38_2$fd38_38_1_3
+    ag3a_72_4b <- i$fd38_38$fd38_38_2$fd38_38_1_4
+    ag3a_72_1c <- i$fd38_38$fd38_38_3$fd38_38_1_1
+    ag3a_72_2c <- i$fd38_38$fd38_38_3$fd38_38_1_2
+    ag3a_72_3c <- i$fd38_38$fd38_38_3$fd38_38_1_3
+    ag3a_72_4c <- i$fd38_38$fd38_38_3$fd38_38_1_4
+    ag3a_72_1d <- i$fd38_38$fd38_38_4$fd38_38_1_1
+    ag3a_72_2d <- i$fd38_38$fd38_38_4$fd38_38_1_2
+    ag3a_72_3d <- i$fd38_38$fd38_38_4$fd38_38_1_3
+    ag3a_72_4d <- i$fd38_38$fd38_38_4$fd38_38_1_4
+    ag3a_39_1 <- '1' %in% i$fd3_organic$fd33_18a
+    ag3a_39_2 <- '2' %in% i$fd3_organic$fd33_18a
+    ag3a_39_4 <- '4' %in% i$fd3_organic$fd33_18a
+    ag3a_39_5 <- '5' %in% i$fd3_organic$fd33_18a
+    ag3a_39_6 <- '6' %in% i$fd3_organic$fd33_18a
+    ag3a_39_7 <- '7' %in% i$fd3_organic$fd33_18a
+    ag3a_39_8 <- '8' %in% i$fd3_organic$fd33_18a
+    ag3a_45_dap <- 'DAP' %in% i$fd35_inorg$fd35_24a
+    ag3a_45_urea <- 'UREA' %in% i$fd35_inorg$fd35_24a
+    ag3a_45_tsp <- 'TSP' %in% i$fd35_inorg$fd35_24a
+    ag3a_45_can <- 'CAN' %in% i$fd35_inorg$fd35_24a
+    ag3a_45_sa <- 'SA' %in% i$fd35_inorg$fd35_24a
+    ag3a_45_npk <- 'NPK' %in% i$fd35_inorg$fd35_24a
+    ag3a_45_mrp <- 'MRP' %in% i$fd35_inorg$fd35_24a
   
+    tempdf <- vs.data.frame(season, field_no, ag3a_03, ag3a_03_other, ag3a_04, ag3a_07_1, ag3a_10, ag3a_14, ag3a_15_1, ag3a_15_2, ag3a_17, ag3a_18, 
+                            ag3a_18_other, ag3a_20, ag3a_20_other, ag31_13, ag3a_23, ag3a_24, ag3a_24_other, ag3a_28, ag3a_34, 
+                            ag3a_33_17, ag3a_39, ag3a_39a, ag3a_39a_other, ag3a_39b, ag3a_39b_other, ag3a_40, ag3a_41, ag3a_42, 
+                            ag3a_43, ag3a_45, ag3a_46, ag3a_46_other, ag3a_47, ag3a_48, ag3a_49, ag3a_52, ag3a_53, ag3a_53_other, 
+                            ag3a_54, ag3a_55, ag3a_56, ag3a_58, ag3a_59, ag3a_59_other, ag3a_60_1, ag3a_60_2, ag3a_61, ag3a_72_1a, 
+                            ag3a_72_2a, ag3a_72_3a, ag3a_72_4a, ag3a_72_1b, ag3a_72_2b, ag3a_72_3b, ag3a_72_4b, ag3a_72_1c, ag3a_72_2c, 
+                            ag3a_72_3c, ag3a_72_4c, ag3a_72_1d, ag3a_72_2d, ag3a_72_3d, ag3a_72_4d, ag3a_39_1, ag3a_39_2, ag3a_39_4, 
+                            ag3a_39_5, ag3a_39_6, ag3a_39_7, ag3a_39_8, ag3a_45_dap, ag3a_45_urea, ag3a_45_tsp, ag3a_45_can, ag3a_45_sa, 
+                            ag3a_45_npk, ag3a_45_mrp)
+    
+    agric_field_season_b <- bind_rows(agric_field_season_b, tempdf)
+    
+    indct <- 1
+    for (j in i[names(i)=='fd37_labor']){
+      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd3_field_id), '/a/', uuidct)
+      parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd3_field_id), '/a')
+      survey_uuid <- survey_uuid
+      ag3a_70_preparing <- j$fd37_questions$fd37_preparing
+      ag3a_70_weeding <- j$fd37_questions$fd37_weeding
+      ag3a_70_fertilizing <- j$fd37_questions$fd37_fertilizing
+      ag3a_70_harvesting <- j$fd37_questions$fd37_harvesting
+      ind_refno <- paste0('I', substr(100 + indct, 2, 3))
+      
+      tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, ag3a_70_preparing,
+                              ag3a_70_weeding, ag3a_70_fertilizing, ag3a_70_harvesting, ind_refno)
+      agric_field_season_individual <- bind_rows(agric_field_season_individual, tempdf)
+      
+      ag_indid_name <- j$fd37_name
+      tempdf <- vs.data.frame(uuid, ag_indid_name)
+      piiname_agric_field_season_individual <- bind_rows(piiname_agric_field_season_individual, tempdf)
+      
+      uuidct <- uuidct + 1
+      indct <- indct + 1
+    }
+  }
   
+  #short rainy
+  uuidct <- 1
+  for(i in xml$fd3b[names(xml$fd3b)=='fd3b_repeat']){
+    season <- 'short_rainy'
+    field_no <- i$fd3b_field_id
+    ag3a_03 <- i$fd3b_3 %>%
+      codetext('landuse', codedf)
+    ag3a_03_other <- i$fd3b_3_other
+    ag3a_04 <- i$fd3b_4
+    ag3a_07_1 <- i$fd3b_5 %>%
+      codetext('crops', codedf)
+    ag3a_10 <- i$fd3b_6 %>%
+      codetext('fd3_6', codedf)
+    ag3a_14 <- i$fd3b_3_skip$fd3b2_7
+    ag3a_15_1 <- i$fd3b_3_skip$fd3b2_8$fd3b2_8_1 %>%
+      codetext('fd32_8', codedf)
+    ag3a_15_2 <- i$fd3b_3_skip$fd3b2_8$fd3b2_8_2 %>%
+      codetext('fd32_8', codedf)
+    ag3a_17 <- i$fd3b2_9
+    ag3a_18 <- i$fd3b2_1011$fd3b2_10 %>%
+      codetext('fd32_10', codedf)
+    ag3a_18_other <- i$fd3b2_1011$fd3b2_10_other
+    ag3a_20 <- i$fd3b2_1011$fd3b2_11 %>%
+      codetext('fd32_11', codedf)
+    ag3a_20_other <- i$fd3b2_1011$fd3b2_10_other
+    ag31_13 <- i$fd3b2_1011$fd3b2_12
+    ag3a_23 <- i$fd3b2_13
+    ag3a_24 <- i$fd3b3_14 %>%
+      codetext('fd33_14', codedf)
+    ag3a_24_other <- i$fd3b3_14_other
+    ag3a_28 <- i$fd3b3_15 %>%
+      codetext('fd33_15', codedf)
+    ag3a_34 <- i$fd3b3_16 %>%
+      codetext('fd33_16', codedf)
+    ag3a_33_17 <- i$fd3b3_17
+    ag3a_39 <- i$fd3b3_18_1
+    ag3a_39a <- i$fd3b_organic$fd3b3_18b %>%
+      codetext('fd33_18b', codedf)
+    ag3a_39a_other <- i$fd3b_organic$fd3b3_18b_other
+    ag3a_39b <- i$fd3b_organic$fd3b3_18c %>%
+      codetext('fd33_18c', codedf)
+    ag3a_39b_other <- i$fd3b_organic$fd3b3_18c_other
+    ag3a_40 <- i$fd3b_organic$fd3b4$fd3b4_19
+    ag3a_41 <- i$fd3b_organic$fd3b4$fd3b4_20
+    ag3a_42 <- i$fd3b_organic$fd3b4_2$fd3b4_21
+    ag3a_43 <- i$fd3b_organic$fd3b4_2$fd3b4_22
+    ag3a_45 <- i$fd3b5_23
+    ag3a_46 <- i$fd3b5_inorg$fd3b5_24 %>%
+      codetext('fd35_24', codedf)
+    ag3a_46_other <- i$fd3b5_inorg$fd3b5_24_other
+    ag3a_47 <- i$fd3b5_inorg$fd3b5_25
+    ag3a_48 <- i$fd3b5_inorg$fd3b5_26
+    ag3a_49 <- i$fd3b5_inorg$fd3b5_27
+    ag3a_52 <- i$fd3b6_28
+    ag3a_53 <- i$fd3b6_inorg$fd3b6_29 %>%
+      codetext('fd36_29', codedf)
+    ag3a_53_other <- i$fd3b6_inorg$fd3b6_29_other
+    ag3a_54 <- i$fd3b6_inorg$fd3b6_30
+    ag3a_55 <- i$fd3b6_inorg$fd3b6_31
+    ag3a_56 <- i$fd3b6_inorg$fd3b6_32
+    ag3a_58 <- i$fd3b7_33
+    ag3a_59 <- i$fd3b7_pest$fd3b7_34 %>%
+      codetext('fd37_34', codedf)
+    ag3a_59_other <- i$fd3b7_pest$fd3b7_34_other
+    ag3a_60_1 <- i$fd3b7_pest$fd3b7_35_1
+    ag3a_60_2 <- i$fd3b7_pest$fd3b7_35_2 %>%
+      codetext('fd37_35', codedf)
+    ag3a_61 <- i$fd3b7_pest$fd3b7_36
+    ag3a_72_1a <- i$fd3b8_38$fd3b8_38_1$fd3b8_38_1_1
+    ag3a_72_2a <- i$fd3b8_38$fd3b8_38_1$fd3b8_38_1_2
+    ag3a_72_3a <- i$fd3b8_38$fd3b8_38_1$fd3b8_38_1_3
+    ag3a_72_4a <- i$fd3b8_38$fd3b8_38_1$fd3b8_38_1_4
+    ag3a_72_1b <- i$fd3b8_38$fd3b8_38_2$fd3b8_38_1_1
+    ag3a_72_2b <- i$fd3b8_38$fd3b8_38_2$fd3b8_38_1_2
+    ag3a_72_3b <- i$fd3b8_38$fd3b8_38_2$fd3b8_38_1_3
+    ag3a_72_4b <- i$fd3b8_38$fd3b8_38_2$fd3b8_38_1_4
+    ag3a_72_1c <- i$fd3b8_38$fd3b8_38_3$fd3b8_38_1_1
+    ag3a_72_2c <- i$fd3b8_38$fd3b8_38_3$fd3b8_38_1_2
+    ag3a_72_3c <- i$fd3b8_38$fd3b8_38_3$fd3b8_38_1_3
+    ag3a_72_4c <- i$fd3b8_38$fd3b8_38_3$fd3b8_38_1_4
+    ag3a_72_1d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_1
+    ag3a_72_2d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_2
+    ag3a_72_3d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_3
+    ag3a_72_4d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_4
+    ag3a_39_1 <- '1' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_39_2 <- '2' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_39_4 <- '4' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_39_5 <- '5' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_39_6 <- '6' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_39_7 <- '7' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_39_8 <- '8' %in% i$fd3b_organic$fd3b3_18a
+    ag3a_45_dap <- 'DAP' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_45_urea <- 'UREA' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_45_tsp <- 'TSP' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_45_can <- 'CAN' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_45_sa <- 'SA' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_45_npk <- 'NPK' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_45_mrp <- 'MRP' %in% i$fd3b5_inorg$fd3b5_24a
+    
+    tempdf <- vs.data.frame(season, field_no, ag3a_03, ag3a_03_other, ag3a_04, ag3a_07_1, ag3a_10, ag3a_14, ag3a_15_1, ag3a_15_2, ag3a_17, ag3a_18, 
+                            ag3a_18_other, ag3a_20, ag3a_20_other, ag31_13, ag3a_23, ag3a_24, ag3a_24_other, ag3a_28, ag3a_34, 
+                            ag3a_33_17, ag3a_39, ag3a_39a, ag3a_39a_other, ag3a_39b, ag3a_39b_other, ag3a_40, ag3a_41, ag3a_42, 
+                            ag3a_43, ag3a_45, ag3a_46, ag3a_46_other, ag3a_47, ag3a_48, ag3a_49, ag3a_52, ag3a_53, ag3a_53_other, 
+                            ag3a_54, ag3a_55, ag3a_56, ag3a_58, ag3a_59, ag3a_59_other, ag3a_60_1, ag3a_60_2, ag3a_61, ag3a_72_1a, 
+                            ag3a_72_2a, ag3a_72_3a, ag3a_72_4a, ag3a_72_1b, ag3a_72_2b, ag3a_72_3b, ag3a_72_4b, ag3a_72_1c, ag3a_72_2c, 
+                            ag3a_72_3c, ag3a_72_4c, ag3a_72_1d, ag3a_72_2d, ag3a_72_3d, ag3a_72_4d, ag3a_39_1, ag3a_39_2, ag3a_39_4, 
+                            ag3a_39_5, ag3a_39_6, ag3a_39_7, ag3a_39_8, ag3a_45_dap, ag3a_45_urea, ag3a_45_tsp, ag3a_45_can, ag3a_45_sa, 
+                            ag3a_45_npk, ag3a_45_mrp)
+    
+    agric_field_season_b <- bind_rows(agric_field_season_b, tempdf)
+    
+    indct <- 1
+    for (j in i[names(i)=='fd3b7_labor']){
+      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd3b_field_id), '/b/', uuidct)
+      parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd3b_field_id), '/b')
+      survey_uuid <- survey_uuid
+      ag3a_70_preparing <- j$fd3b7_questions$fd3b7_preparing
+      ag3a_70_weeding <- j$fd3b7_questions$fd3b7_weeding
+      ag3a_70_fertilizing <- j$fd3b7_questions$fd3b7_fertilizing
+      ag3a_70_harvesting <- j$fd3b7_questions$fd3b7_harvesting
+      ind_refno <- paste0('I', substr(100 + indct, 2, 3))
+      
+      tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, ag3a_70_preparing,
+                              ag3a_70_weeding, ag3a_70_fertilizing, ag3a_70_harvesting, ind_refno)
+      agric_field_season_individual <- bind_rows(agric_field_season_individual, tempdf)
+      
+      ag_indid_name <- j$fd3b7_name
+      tempdf <- vs.data.frame(uuid, ag_indid_name)
+      piiname_agric_field_season_individual <- bind_rows(piiname_agric_field_season_individual, tempdf)
+      
+      uuidct <- uuidct + 1
+      indct <- indct + 1
+    }
+  }
   
+  agric_field_season <- merge(agric_field_season_a,
+                              agric_field_season_b,
+                              by=c('field_no', 'season')) %>%
+    rowcoalesce(agric_field_season, c('ag3a_03', 'ag3a_03_other', 'ag3a_07_1'))
+
   
-  
+  ################################
+  #agric_field_season_fieldcrop
+  ################################
   
   
   

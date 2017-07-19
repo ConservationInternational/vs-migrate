@@ -168,7 +168,11 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
 
 codetext <- function(code, list.name, codedf, country, region){
   
-  codedf <- codedf[codedf$`list name` == list.name, ]
+  if(is.null(code)){
+    return(NULL)
+  }
+  
+  codedf <- codedf[which(codedf$`list name` == list.name), ]
   
   if(!missing(country)){
     codedf <- codedf[df$country == country, ]
@@ -177,7 +181,7 @@ codetext <- function(code, list.name, codedf, country, region){
     codedf <- codedf[df$region == region, ]
   }
   
-  codedf$label[match(code, df$name)]
+  codedf$label[match(code, codedf$name)]
   
 }
 
@@ -229,4 +233,18 @@ getxmluuid <- function(uuid){
   xml <- df$xml[df$uuid == uuid]
   xml <- xmlToList(xml)
   xml
+}
+
+rowcoalesce <- function(df, cols){
+  for (col in cols){
+    colx <- paste0(col, '.x')
+    coly <- paste0(col, '.y')
+    
+    df[ , col] <- coalesce(df[ , colx], df[ , coly])
+    
+    df[ , colx] <- NULL
+    df[ , coly] <- NULL
+  }
+  
+  df
 }
