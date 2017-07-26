@@ -1,10 +1,6 @@
-library(XML)
-library(readxl)
-library(RPostgreSQL)
-
-options(stringsAsFactors = FALSE)
-
-agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
+agriculture_survey_15_may_2016 <- function(dbcon, xml, test=FALSE){
+  codedf <- read_xls('ag/VS_Agriculture_15.05.2016.xls', sheet = 'choices')
+  
   xml <- xmlToList(xml)
   
   ###########
@@ -25,7 +21,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   ag_year <- xml$fr2_group$fr2_10
   ag_photo <- xml$fr_5
   ag12b_09a <- xml$fd12_9
-  ag12a_10 <- codetext(xml$fd12_10, 'microfinance', codedf)
+  ag12a_10 <- ct(xml$fd12_10, 'microfinance')
   ag12a_10_other <- xml$fd12_10_other
   ag_survey_instrument <- xml$survey_instrument
   ag_end_time <- xml$end_time
@@ -39,11 +35,11 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   country <- xml$country
   
-  district <- codetext(xml$district, 'districts', codedf, country=country, region=xml$region)
+  district <- ct(xml$district, 'districts', codedf, country=country, region=xml$region)
   
-  region <- codetext(xml$region, 'regions', codedf, country=country)
+  region <- ct(xml$region, 'regions', codedf, country=country)
   
-  hh_refno <- getHHref(con, xml$country, xml$metadata$landscape_no,
+  hh_refno <- getHHref(dbcon, xml$country, xml$metadata$landscape_no,
                        xml$metadata$eplot_no, xml$metadata$hh_no)
   
   round <- getRound(xml$country, ag_date_of_interview)
@@ -75,41 +71,41 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   if (xml$fd9_1=='1'){
     
     agric_cropbyprod <- data.frame()
-    ct <- 1
+    count <- 1
     for (i in xml$fd9_group[names(xml$fd9_group)=='fd9_5a_repeat']){
-      uuid <- paste0(survey_uuid, '/', ct)
+      uuid <- paste0(survey_uuid, '/', count)
       parent_uuid <- survey_uuid
       survey_uuid <- survey_uuid 
       crop_name <- i$fd9_5a_crop_name
       ag09_03 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_03_pro %>%
-        codetext('fd9_3_pro', codedf)
+        ct('fd9_3_pro')
       ag09_03_other <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_03_pro_other
       ag09_03_by <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_03_by %>%
-        codetext('fd9_3_by', codedf)
+        ct('fd9_3_by')
       ag09_03_by_other <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_03_by_other
       ag09_03_product_name <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_product_name
       ag09_04_1 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_04$fd9_5a_04_1
       ag09_04_2 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_04$fd9_5a_04_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag09_07 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_04$fd9_5a_7_1
       ag09_07_2 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_04$fd9_5a_7_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag09_05 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_05
       ag09_06_1 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_2$fd9_5a_06$fd9_5a_06_1
       ag09_06_2 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_2$fd9_5a_06$fd9_5a_06_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag09_08 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_2$fd9_5a_3$fd9_5a_08
       ag09_8a <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_8a
       ag09_8b_1 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_8b$fd9_5a_8b_1
       ag09_8b_2 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_8b$fd9_5a_8b_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag09_10 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_09 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag09_11 <- i$fd9_5a_crop_not_none$fd9_5a_1$fd9_5a_02_3_repeat$fd9_5a_10
       is_processed <- xml$fd9_group$fd9_5a_repeat$fd9_5a_crop_not_none$fd9_5a_02_3_options == '1'
       is_byproduct <- xml$fd9_group$fd9_5a_repeat$fd9_5a_crop_not_none$fd9_5a_02_3_options == '2'
 
-      ct <- ct + 1
+      count <- count + 1
       
       tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, crop_name, ag09_03, 
                               ag09_03_other, ag09_03_by, ag09_03_by_other, ag09_03_product_name, 
@@ -130,9 +126,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   if(!is.null(xml$fd12_extension)){
     agric_extension <- data.frame()
-    ct <- 1
+    count <- 1
     for(i in xml$fd9_group[names(xml$fd9_group)=='f12_repeat']){
-      uuid <- paste0(survey_uuid, '/', ct)
+      uuid <- paste0(survey_uuid, '/', count)
       parent_uuid <- survey_uuid
       survey_uuid <- survey_uuid
       source_name <- i$fd12_source_name
@@ -144,11 +140,11 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       ag12a_02_5 <- i$fd12_1$fd12_02_a
       ag12a_02_6 <- i$fd12_1$fd12_02_a
       ag12a_03 <- i$fd12_3$fd12_03 %>%
-        codetext('fd3_6', codedf)
+        ct('fd3_6')
       ag12a_04 <- i$fd12_3$fd12_04
       ag12a_05 <- i$fd12_05
       
-      ct <- ct + 1
+      count <- count + 1
       
       tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, source_name, source_name_other,
                               ag12a_02_1, ag12a_02_2, ag12a_02_3, ag12a_02_4, ag12a_02_5,
@@ -168,9 +164,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   agric_field_a <- data.frame()
   piigeo_agric_field <- data.frame()
-  ct <- 1
+  count <- 1
   for(i in xml$fr[names(xml$fr)=='fr_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     field_name <- i$fr_field_name
@@ -181,10 +177,10 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag2a_04 <- i$fr_3
     ag2a_07 <- i$fr2_6
     ag2a_08 <- i$fr2_7 %>%
-      codetext('fr3_7', codedf)
+      ct('fr3_7')
     ag2a_08_other <- i$fr2_7_other
   
-    ct <- ct + 1
+    count <- count + 1
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no,
                             ag2a_04, ag2a_07, ag2a_08, ag2a_08_other)
@@ -200,7 +196,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag2a_02_1 <- i$fr2_8_grp$fr2_8_1
     ag2a_02_2 <- i$fr2_8_grp$fr2_8_2
     ag2a_02_2_unit <- i$fr2_8_grp$fr2_8_2_1 %>%
-      codetext('time', codedf)
+      ct('time')
     ag2a_09 <- i$fr2_9_grp$fr2_9
     ag2a_08a <- i$fr2_9_grp$fr2_9a
     ag2a_8b <- i$fr2_9_grp$fr2_9b
@@ -258,9 +254,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   agric_field_permcrop <- data.frame()
   for(i in xml[names(xml)=='fd6aii_repeat']){
-    ct <- 1
+    count <- 1
     for(j in i[names(i)=='fd6aii_crops']){
-      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6aii_field_id), '/', ct, 'aii')
+      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6aii_field_id), '/', count, 'aii')
       parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6aii_field_id))
       crop_type <- 'fruit'
       field_no <- i$fd6aii_field_id
@@ -269,7 +265,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       ag6a_05 <- j$fd6aii$fd6aii_fr1_03
       ag6a_08_1 <- j$fd6aii$fd6aii_fr1_04_1
       ag6a_08_2 <- j$fd6aii$fd6aii_fr1_04_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag6a_09 <- j$fd6aii$fd6aii_fr1_05
       
       tempdf <- vs.data.frame(uuid, parent_uuid, crop_type, field_no, crop_name,
@@ -277,14 +273,14 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       
       agric_field_permcrop <- bind_rows(agric_field_permcrop, tempdf)
       
-      ct <- ct + 1
+      count <- count + 1
     }
   }
   
   for(i in xml[names(xml)=='fd6bii_repeat']){
-    ct <- 1
+    count <- 1
     for(j in i[names(i)=='fd6bii_crops']){
-      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6bii_field_id), '/', ct, 'bii')
+      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6bii_field_id), '/', count, 'bii')
       parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd6bii_field_id))
       crop_type <- 'permanent'
       field_no <- i$fd6bii_field_id
@@ -293,7 +289,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       ag6a_05 <- j$fd6bii$fd6bii_fr1_03
       ag6a_08_1 <- j$fd6bii$fd6bii_fr1_04_1
       ag6a_08_2 <- j$fd6bii$fd6bii_fr1_04_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag6a_09 <- j$fd6bii$fd6bii_fr1_05
       
       tempdf <- vs.data.frame(uuid, parent_uuid, crop_type, field_no, crop_name,
@@ -301,7 +297,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       
       agric_field_permcrop <- bind_rows(agric_field_permcrop, tempdf)
       
-      ct <- ct + 1
+      count <- count + 1
     }
   }
   
@@ -323,10 +319,10 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     field_no <- i$fr_field_id
     season <- 'long_rainy'
     ag3a_03 <- i$fr_2b1 %>%
-      codetext('landuse', codedf)
+      ct('landuse')
     ag3a_03_other <- i$fr2b1_other
     ag3a_07_1 <- i$fr_2b2 %>%
-      codetext('crops', codedf)
+      ct('crops')
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no, season,
                             ag3a_03, ag3a_03_other, ag3a_07_1)
@@ -341,10 +337,10 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     field_no <- i$fr_field_id
     season <- 'short_rainy'
     ag3a_03 <- i$fr_2c %>%
-      codetext('landuse', codedf)
+      ct('landuse')
     ag3a_03_other <- i$fr_2c_other
     ag3a_07_1 <- i$fr_2d %>%
-      codetext('crops', codedf)
+      ct('crops')
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no, season,
                             ag3a_03, ag3a_03_other, ag3a_07_1)
@@ -360,41 +356,41 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     season <- 'long_rainy'
     field_no <- i$fd3_field_id
     ag3a_03 <- i$fd3_3 %>%
-      codetext('landuse', codedf)
+      ct('landuse')
     ag3a_03_other <- i$fd3_3_other
     ag3a_04 <- i$fd3_4
     ag3a_07_1 <- i$fd3_5 %>%
-      codetext('crops', codedf)
+      ct('crops')
     ag3a_10 <- i$fd3_6 %>%
-      codetext('fd3_6', codedf)
+      ct('fd3_6')
     ag3a_14 <- i$fd3_3_skip$fd32_7
     ag3a_15_1 <- i$fd3_3_skip$fd32_8$fd32_8_1 %>%
-      codetext('fd32_8', codedf)
+      ct('fd32_8')
     ag3a_15_2 <- i$fd3_3_skip$fd32_8$fd32_8_2 %>%
-      codetext('fd32_8', codedf)
+      ct('fd32_8')
     ag3a_17 <- i$fd32_9
     ag3a_18 <- i$fd32_1011$fd32_10 %>%
-      codetext('fd32_10', codedf)
+      ct('fd32_10')
     ag3a_18_other <- i$fd32_1011$fd32_10_other
     ag3a_20 <- i$fd32_1011$fd32_11 %>%
-      codetext('fd32_11', codedf)
+      ct('fd32_11')
     ag3a_20_other <- i$fd32_1011$fd32_10_other
     ag31_13 <- i$fd32_1011$fd32_12
     ag3a_23 <- i$fd32_13
     ag3a_24 <- i$fd33_14 %>%
-      codetext('fd33_14', codedf)
+      ct('fd33_14')
     ag3a_24_other <- i$fd33_14_other
     ag3a_28 <- i$fd33_15 %>%
-      codetext('fd33_15', codedf)
+      ct('fd33_15')
     ag3a_34 <- i$fd33_16 %>%
-      codetext('fd33_16', codedf)
+      ct('fd33_16')
     ag3a_33_17 <- i$fd33_17
     ag3a_39 <- i$fd33_18_1
     ag3a_39a <- i$fd3_organic$fd33_18b %>%
-      codetext('fd33_18b', codedf)
+      ct('fd33_18b')
     ag3a_39a_other <- i$fd3_organic$fd33_18b_other
     ag3a_39b <- i$fd3_organic$fd33_18c %>%
-      codetext('fd33_18c', codedf)
+      ct('fd33_18c')
     ag3a_39b_other <- i$fd3_organic$fd33_18c_other
     ag3a_40 <- i$fd3_organic$fd34$fd34_19
     ag3a_41 <- i$fd3_organic$fd34$fd34_20
@@ -402,25 +398,25 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag3a_43 <- i$fd3_organic$fd34_2$fd34_22
     ag3a_45 <- i$fd35_23
     ag3a_46 <- i$fd35_inorg$fd35_24 %>%
-      codetext('fd35_24', codedf)
+      ct('fd35_24')
     ag3a_46_other <- i$fd35_inorg$fd35_24_other
     ag3a_47 <- i$fd35_inorg$fd35_25
     ag3a_48 <- i$fd35_inorg$fd35_26
     ag3a_49 <- i$fd35_inorg$fd35_27
     ag3a_52 <- i$fd36_28
     ag3a_53 <- i$fd36_inorg$fd36_29 %>%
-      codetext('fd36_29', codedf)
+      ct('fd36_29')
     ag3a_53_other <- i$fd36_inorg$fd36_29_other
     ag3a_54 <- i$fd36_inorg$fd36_30
     ag3a_55 <- i$fd36_inorg$fd36_31
     ag3a_56 <- i$fd36_inorg$fd36_32
     ag3a_58 <- i$fd37_33
     ag3a_59 <- i$fd37_pest$fd37_34 %>%
-      codetext('fd37_34', codedf)
+      ct('fd37_34')
     ag3a_59_other <- i$fd37_pest$fd37_34_other
     ag3a_60_1 <- i$fd37_pest$fd37_35_1
     ag3a_60_2 <- i$fd37_pest$fd37_35_2 %>%
-      codetext('fd37_35', codedf)
+      ct('fd37_35')
     ag3a_61 <- i$fd37_pest$fd37_36
     ag3a_72_1a <- i$fd38_38$fd38_38_1$fd38_38_1_1
     ag3a_72_2a <- i$fd38_38$fd38_38_1$fd38_38_1_2
@@ -438,20 +434,20 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag3a_72_2d <- i$fd38_38$fd38_38_4$fd38_38_1_2
     ag3a_72_3d <- i$fd38_38$fd38_38_4$fd38_38_1_3
     ag3a_72_4d <- i$fd38_38$fd38_38_4$fd38_38_1_4
-    ag3a_39_1 <- '1' %in% i$fd3_organic$fd33_18a
-    ag3a_39_2 <- '2' %in% i$fd3_organic$fd33_18a
-    ag3a_39_4 <- '4' %in% i$fd3_organic$fd33_18a
-    ag3a_39_5 <- '5' %in% i$fd3_organic$fd33_18a
-    ag3a_39_6 <- '6' %in% i$fd3_organic$fd33_18a
-    ag3a_39_7 <- '7' %in% i$fd3_organic$fd33_18a
-    ag3a_39_8 <- '8' %in% i$fd3_organic$fd33_18a
-    ag3a_45_dap <- 'DAP' %in% i$fd35_inorg$fd35_24a
-    ag3a_45_urea <- 'UREA' %in% i$fd35_inorg$fd35_24a
-    ag3a_45_tsp <- 'TSP' %in% i$fd35_inorg$fd35_24a
-    ag3a_45_can <- 'CAN' %in% i$fd35_inorg$fd35_24a
-    ag3a_45_sa <- 'SA' %in% i$fd35_inorg$fd35_24a
-    ag3a_45_npk <- 'NPK' %in% i$fd35_inorg$fd35_24a
-    ag3a_45_mrp <- 'MRP' %in% i$fd35_inorg$fd35_24a
+    ag3a_39_1 <- grepl('1', i$fd3_organic$fd33_18a)
+    ag3a_39_2 <- grepl('2', i$fd3_organic$fd33_18a)
+    ag3a_39_4 <- grepl('4', i$fd3_organic$fd33_18a)
+    ag3a_39_5 <- grepl('5', i$fd3_organic$fd33_18a)
+    ag3a_39_6 <- grepl('6', i$fd3_organic$fd33_18a)
+    ag3a_39_7 <- grepl('7', i$fd3_organic$fd33_18a)
+    ag3a_39_8 <- grepl('8', i$fd3_organic$fd33_18a)
+    ag3a_45_dap <- grepl('DAP', i$fd35_inorg$fd35_24a)
+    ag3a_45_urea <- grepl('UREA', i$fd35_inorg$fd35_24a)
+    ag3a_45_tsp <- grepl('TSP', i$fd35_inorg$fd35_24a)
+    ag3a_45_can <- grepl('CAN', i$fd35_inorg$fd35_24a)
+    ag3a_45_sa <- grepl('SA', i$fd35_inorg$fd35_24a)
+    ag3a_45_npk <- grepl('NPK', i$fd35_inorg$fd35_24a)
+    ag3a_45_mrp <- grepl('MRP', i$fd35_inorg$fd35_24a)
   
     tempdf <- vs.data.frame(season, field_no, ag3a_03, ag3a_03_other, ag3a_04, ag3a_07_1, ag3a_10, ag3a_14, ag3a_15_1, ag3a_15_2, ag3a_17, ag3a_18, 
                             ag3a_18_other, ag3a_20, ag3a_20_other, ag31_13, ag3a_23, ag3a_24, ag3a_24_other, ag3a_28, ag3a_34, 
@@ -495,41 +491,41 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     season <- 'short_rainy'
     field_no <- i$fd3b_field_id
     ag3a_03 <- i$fd3b_3 %>%
-      codetext('landuse', codedf)
+      ct('landuse')
     ag3a_03_other <- i$fd3b_3_other
     ag3a_04 <- i$fd3b_4
     ag3a_07_1 <- i$fd3b_5 %>%
-      codetext('crops', codedf)
+      ct('crops')
     ag3a_10 <- i$fd3b_6 %>%
-      codetext('fd3_6', codedf)
+      ct('fd3_6')
     ag3a_14 <- i$fd3b_3_skip$fd3b2_7
     ag3a_15_1 <- i$fd3b_3_skip$fd3b2_8$fd3b2_8_1 %>%
-      codetext('fd32_8', codedf)
+      ct('fd32_8')
     ag3a_15_2 <- i$fd3b_3_skip$fd3b2_8$fd3b2_8_2 %>%
-      codetext('fd32_8', codedf)
+      ct('fd32_8')
     ag3a_17 <- i$fd3b2_9
     ag3a_18 <- i$fd3b2_1011$fd3b2_10 %>%
-      codetext('fd32_10', codedf)
+      ct('fd32_10')
     ag3a_18_other <- i$fd3b2_1011$fd3b2_10_other
     ag3a_20 <- i$fd3b2_1011$fd3b2_11 %>%
-      codetext('fd32_11', codedf)
+      ct('fd32_11')
     ag3a_20_other <- i$fd3b2_1011$fd3b2_10_other
     ag31_13 <- i$fd3b2_1011$fd3b2_12
     ag3a_23 <- i$fd3b2_13
     ag3a_24 <- i$fd3b3_14 %>%
-      codetext('fd33_14', codedf)
+      ct('fd33_14')
     ag3a_24_other <- i$fd3b3_14_other
     ag3a_28 <- i$fd3b3_15 %>%
-      codetext('fd33_15', codedf)
+      ct('fd33_15')
     ag3a_34 <- i$fd3b3_16 %>%
-      codetext('fd33_16', codedf)
+      ct('fd33_16')
     ag3a_33_17 <- i$fd3b3_17
     ag3a_39 <- i$fd3b3_18_1
     ag3a_39a <- i$fd3b_organic$fd3b3_18b %>%
-      codetext('fd33_18b', codedf)
+      ct('fd33_18b')
     ag3a_39a_other <- i$fd3b_organic$fd3b3_18b_other
     ag3a_39b <- i$fd3b_organic$fd3b3_18c %>%
-      codetext('fd33_18c', codedf)
+      ct('fd33_18c')
     ag3a_39b_other <- i$fd3b_organic$fd3b3_18c_other
     ag3a_40 <- i$fd3b_organic$fd3b4$fd3b4_19
     ag3a_41 <- i$fd3b_organic$fd3b4$fd3b4_20
@@ -537,25 +533,25 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag3a_43 <- i$fd3b_organic$fd3b4_2$fd3b4_22
     ag3a_45 <- i$fd3b5_23
     ag3a_46 <- i$fd3b5_inorg$fd3b5_24 %>%
-      codetext('fd35_24', codedf)
+      ct('fd35_24')
     ag3a_46_other <- i$fd3b5_inorg$fd3b5_24_other
     ag3a_47 <- i$fd3b5_inorg$fd3b5_25
     ag3a_48 <- i$fd3b5_inorg$fd3b5_26
     ag3a_49 <- i$fd3b5_inorg$fd3b5_27
     ag3a_52 <- i$fd3b6_28
     ag3a_53 <- i$fd3b6_inorg$fd3b6_29 %>%
-      codetext('fd36_29', codedf)
+      ct('fd36_29')
     ag3a_53_other <- i$fd3b6_inorg$fd3b6_29_other
     ag3a_54 <- i$fd3b6_inorg$fd3b6_30
     ag3a_55 <- i$fd3b6_inorg$fd3b6_31
     ag3a_56 <- i$fd3b6_inorg$fd3b6_32
     ag3a_58 <- i$fd3b7_33
     ag3a_59 <- i$fd3b7_pest$fd3b7_34 %>%
-      codetext('fd37_34', codedf)
+      ct('fd37_34')
     ag3a_59_other <- i$fd3b7_pest$fd3b7_34_other
     ag3a_60_1 <- i$fd3b7_pest$fd3b7_35_1
     ag3a_60_2 <- i$fd3b7_pest$fd3b7_35_2 %>%
-      codetext('fd37_35', codedf)
+      ct('fd37_35')
     ag3a_61 <- i$fd3b7_pest$fd3b7_36
     ag3a_72_1a <- i$fd3b8_38$fd3b8_38_1$fd3b8_38_1_1
     ag3a_72_2a <- i$fd3b8_38$fd3b8_38_1$fd3b8_38_1_2
@@ -573,20 +569,20 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag3a_72_2d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_2
     ag3a_72_3d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_3
     ag3a_72_4d <- i$fd3b8_38$fd3b8_38_4$fd3b8_38_1_4
-    ag3a_39_1 <- '1' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_39_2 <- '2' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_39_4 <- '4' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_39_5 <- '5' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_39_6 <- '6' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_39_7 <- '7' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_39_8 <- '8' %in% i$fd3b_organic$fd3b3_18a
-    ag3a_45_dap <- 'DAP' %in% i$fd3b5_inorg$fd3b5_24a
-    ag3a_45_urea <- 'UREA' %in% i$fd3b5_inorg$fd3b5_24a
-    ag3a_45_tsp <- 'TSP' %in% i$fd3b5_inorg$fd3b5_24a
-    ag3a_45_can <- 'CAN' %in% i$fd3b5_inorg$fd3b5_24a
-    ag3a_45_sa <- 'SA' %in% i$fd3b5_inorg$fd3b5_24a
-    ag3a_45_npk <- 'NPK' %in% i$fd3b5_inorg$fd3b5_24a
-    ag3a_45_mrp <- 'MRP' %in% i$fd3b5_inorg$fd3b5_24a
+    ag3a_39_1 <- grepl('1', i$fd3b_organic$fd3b3_18a)
+    ag3a_39_2 <- grepl('2', i$fd3b_organic$fd3b3_18a)
+    ag3a_39_4 <- grepl('4', i$fd3b_organic$fd3b3_18a)
+    ag3a_39_5 <- grepl('5', i$fd3b_organic$fd3b3_18a)
+    ag3a_39_6 <- grepl('6', i$fd3b_organic$fd3b3_18a)
+    ag3a_39_7 <- grepl('7', i$fd3b_organic$fd3b3_18a)
+    ag3a_39_8 <- grepl('8', i$fd3b_organic$fd3b3_18a)
+    ag3a_45_dap <- grepl('DAP', i$fd3b5_inorg$fd3b5_24a)
+    ag3a_45_urea <- grepl('UREA', i$fd3b5_inorg$fd3b5_24a)
+    ag3a_45_tsp <- grepl('TSP', i$fd3b5_inorg$fd3b5_24a)
+    ag3a_45_can <- grepl('CAN', i$fd3b5_inorg$fd3b5_24a)
+    ag3a_45_sa <- grepl('SA', i$fd3b5_inorg$fd3b5_24a)
+    ag3a_45_npk <- grepl('NPK', i$fd3b5_inorg$fd3b5_24a)
+    ag3a_45_mrp <- grepl('MRP', i$fd3b5_inorg$fd3b5_24a)
     
     tempdf <- vs.data.frame(season, field_no, ag3a_03, ag3a_03_other, ag3a_04, ag3a_07_1, ag3a_10, ag3a_14, ag3a_15_1, ag3a_15_2, ag3a_17, ag3a_18, 
                             ag3a_18_other, ag3a_20, ag3a_20_other, ag31_13, ag3a_23, ag3a_24, ag3a_24_other, ag3a_28, ag3a_34, 
@@ -638,9 +634,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   #long rainy
   for (i in xml$fd4[names(xml$fd4)=='fd4_repeat']){
-    ct <- 1
+    count <- 1
     for (j in i[names(i)=='fd4_crops']){
-      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd4_field_id), '/a/', ct)
+      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd4_field_id), '/a/', count)
       parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd4_field_id), '/a')
       survey_uuid <- survey_uuid
       field_no <- i$fd4_field_id
@@ -648,22 +644,22 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       crop_name <- j$fd4_crop_name
       ag4a_01 <- j$fd4_crop_not_none$fd4_01
       ag4a_02 <- j$fd4_crop_not_none$fd4_02 %>%
-        codetext('fd4_2', codedf)
+        ct('fd4_2')
       ag4a_04 <- j$fd4_crop_not_none$fd4_03
       ag4a_05 <- j$fd4_crop_not_none$fd4_04 %>%
-        codetext('fd4_4', codedf)
+        ct('fd4_4')
       ag4a_05_other <- j$fd4_crop_not_none$fd4_04_other
       ag4a_5a <- j$fd4_crop_not_none$fd4_05
       ag4a_06 <- j$fd4_crop_not_none$fd4_06
       ag4a_08 <- j$fd4_crop_not_none$fd4_2$fd4_07
       ag4a_15 <- j$fd4_crop_not_none$fd4_2$fd4_08_1
       ag4a_15_unit <- j$fd4_crop_not_none$fd4_2$fd4_08_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag4a_16 <- j$fd4_crop_not_none$fd4_2$fd4_09
       ag4a_19 <- j$fd4_crop_not_none$fd4_10
       ag4a_21 <- j$fd4_crop_not_none$fd4_3$fd4_11
       ag4a_23 <- j$fd4_crop_not_none$fd4_3$fd4_12 %>%
-        codetext('fd4_12', codedf)
+        ct('fd4_12')
       
       tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no, season, crop_name, 
                               ag4a_01, ag4a_02, ag4a_04, ag4a_05, ag4a_05_other, ag4a_5a, ag4a_06, 
@@ -671,16 +667,16 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
 
       agric_field_season_fieldcrop <- bind_rows(agric_field_season_fieldcrop, tempdf)
       
-      ct <- ct + 1
+      count <- count + 1
     }
   }
   
   
   #short rainy
   for (i in xml$fd4b[names(xml$fd4b)=='fd4b_repeat']){
-    ct <- 1
+    count <- 1
     for (j in i[names(i)=='fd4b_crops']){
-      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd4b_field_id), '/b/', ct)
+      uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd4b_field_id), '/b/', count)
       parent_uuid <- paste0(survey_uuid, '/', gsub('M', '', i$fd4b_field_id), '/b')
       survey_uuid <- survey_uuid
       field_no <- i$fd4b_field_id
@@ -688,22 +684,22 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       crop_name <- j$fd4b_crop_name
       ag4a_01 <- j$fd4b_1$fd4b_01
       ag4a_02 <- j$fd4b_1$fd4b_02 %>%
-        codetext('fd4_2', codedf)
+        ct('fd4_2')
       ag4a_04 <- j$fd4b_1$fd4b_03
       ag4a_05 <- j$fd4b_1$fd4b_04 %>%
-        codetext('fd4_4', codedf)
+        ct('fd4_4')
       ag4a_05_other <- j$fd4b_1$fd4b_04_other
       ag4a_5a <- j$fd4b_1$fd4b_05
       ag4a_06 <- j$fd4b_1$fd4b_06
       ag4a_08 <- j$fd4b_1$fd4b_2$fd4b_07
       ag4a_15 <- j$fd4b_1$fd4b_2$fd4b_08_1
       ag4a_15_unit <- j$fd4b_1$fd4b_2$fd4b_08_2 %>%
-        codetext('kg_liter', codedf)
+        ct('kg_liter')
       ag4a_16 <- j$fd4b_1$fd4b_2$fd4b_09
       ag4a_19 <- j$fd4b_1$fd4b_10
       ag4a_21 <- j$fd4b_1$fd4b_3$fd4b_11
       ag4a_23 <- j$fd4b_1$fd4b_3$fd4b_12 %>%
-        codetext('fd4_12', codedf)
+        ct('fd4_12')
       
       tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, field_no, season, crop_name, 
                               ag4a_01, ag4a_02, ag4a_04, ag4a_05, ag4a_05_other, ag4a_5a, ag4a_06, 
@@ -711,7 +707,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
       
       agric_field_season_fieldcrop <- bind_rows(agric_field_season_fieldcrop, tempdf)
       
-      ct <- ct + 1
+      count <- count + 1
     }
   }
   
@@ -721,9 +717,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   #long rainy
   agric_fieldcrop <- data.frame()
-  ct <- 1
+  count <- 1
   for (i in xml$fd5_group[names(xml$fd5_group)=='fd5_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct, 'a')
+    uuid <- paste0(survey_uuid, '/', count, 'a')
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     season <- 'long_rainy'
@@ -731,16 +727,16 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag5a_01 <- i$fd5$fd5_01
     ag5a_02_1 <- i$fd5$fd5_1$fd5_02_1
     ag5a_02_2 <- i$fd5$fd5_1$fd5_02_2 %>%
-      codetext('kg_liter', codedf)
+      ct('kg_liter')
     ag5a_03 <- i$fd5$fd5_1$fd5_03
     ag5a_12_1 <- i$fd5$fd5_1$fd5_04
     ag5a_20 <- i$fd5$fd5_05
     ag5a_21 <- i$fd5$fd5_2$fd5_06 %>%
-      codetext('fd5_06', codedf)
+      ct('fd5_06')
     ag5a_21_other <- i$fd5$fd5_2$fd5_06_other
     ag5a_22 <- i$fd5$fd5_2$fd5_07
     ag5a_24 <- i$fd5$fd5_08 %>%
-      codetext('fd5_08', codedf)
+      ct('fd5_08')
     ag5a_24_other <- i$fd5$fd5_08_other
     ag5a_25 <- i$fd5$fd5_3$fd5_09
     ag5a_26 <- i$fd5$fd5_3$fd5_10
@@ -750,13 +746,13 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
                             ag5a_21_other, ag5a_22, ag5a_24, ag5a_24_other, ag5a_25, ag5a_26)
     agric_fieldcrop <- bind_rows(agric_fieldcrop, tempdf)
     
-    ct <- ct + 1
+    count <- count + 1
   }
   
   #short rainy
-  ct <- 1
+  count <- 1
   for (i in xml$fd5s_group[names(xml$fd5s_group)=='fd5s_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct, 'b')
+    uuid <- paste0(survey_uuid, '/', count, 'b')
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     season <- 'short_rainy'
@@ -764,16 +760,16 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag5a_01 <- i$fd5s$fd5s_01
     ag5a_02_1 <- i$fd5s$fd5s_1$fd5s_02_1
     ag5a_02_2 <- i$fd5s$fd5s_1$fd5s_02_2 %>%
-      codetext('kg_liter', codedf)
+      ct('kg_liter')
     ag5a_03 <- i$fd5s$fd5s_1$fd5s_03
     ag5a_12_1 <- i$fd5s$fd5s_1$fd5s_04
     ag5a_20 <- i$fd5s$fd5s_05
     ag5a_21 <- i$fd5s$fd5s_2$fd5s_06 %>%
-      codetext('fd5_06', codedf)
+      ct('fd5_06')
     ag5a_21_other <- i$fd5s$fd5s_2$fd5s_06_other
     ag5a_22 <- i$fd5s$fd5s_2$fd5s_07
     ag5a_24 <- i$fd5s$fd5s_08 %>%
-      codetext('fd5_08', codedf)
+      ct('fd5_08')
     ag5a_24_other <- i$fd5s$fd5s_08_other
     ag5a_25 <- i$fd5s$fd5s_3$fd5s_09
     ag5a_26 <- i$fd5s$fd5s_3$fd5s_10
@@ -783,7 +779,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
                             ag5a_21_other, ag5a_22, ag5a_24, ag5a_24_other, ag5a_25, ag5a_26)
     agric_fieldcrop <- bind_rows(agric_fieldcrop, tempdf)
     
-    ct <- ct + 1
+    count <- count + 1
   }
   
   ##############################
@@ -791,9 +787,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   ##############################
   
   agric_implement <- data.frame()
-  ct <- 1
+  count <- 1
   for (i in xml[names(xml)=='fd11_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     toolname <- i$fd11_tool_name
@@ -803,7 +799,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, toolname,
                             ag11_01, ag11_07)
     agric_implement <- bind_rows(agric_implement, tempdf)
-    ct <- ct + 1
+    count <- count + 1
   }
   
   ##############################
@@ -814,16 +810,16 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
   agric_individual <- data.frame()
   piiname_agric_individual <- data.frame()
-  ct <- 1
+  count <- 1
   for (i in xml$hh_roster[names(xml$hh_roster)=='hh_roster_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     ag_indid_age <- i$hh_roster_group$hh_indid_age
     ag_indid_gender <- i$hh_roster_group$hh_indid_gender %>%
-      codetext('mf', codedf)
+      ct('mf')
     ag_indid_respondent <- i$hh_roster_group$hh_indid_respondent
-    ind_refno <- paste0('I', substr(100+ct,2,3))
+    ind_refno <- paste0('I', substr(100+count,2,3))
     ag_indid_name <- i$hh_roster_group$hh_indid_name
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, ag_indid_age,
@@ -833,7 +829,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     tempdf <- vs.data.frame(uuid, ag_indid_name)
     piiname_agric_individual <- bind_rows(piiname_agric_individual, tempdf)
     
-    ct <- ct + 1
+    count <- count + 1
   }
   
   ########################
@@ -841,9 +837,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   ########################
   
   agric_livestock <- data.frame()
-  ct <- 1
+  count <- 1
   for (i in xml[names(xml)=='fd10_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     animal_name <- i$fd10_animal_name
@@ -870,7 +866,7 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   
     agric_livestock <- bind_rows(agric_livestock, tempdf)
     
-    ct <- ct +1 
+    count <- count +1 
   }
   
   #######################################
@@ -878,45 +874,45 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   ######################################
   
   agric_livestockbyprod <- data.frame()
-  ct <- 1
+  count <- 1
   for (i in xml[names(xml)=='fd10b_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     ag10b_01 <- i$fd10b_byproduct_name
     ag10b_1a <- i$fd10a_1a$fd10a_1a_quantity
     ag10b_1a_unit <- i$fd10a_1a$fd10a_1a_unit %>%
-      codetext('fd10b_unit', codedf)
+      ct('fd10b_unit')
     ag10b_1b <- i$fd10a_1b
     ag10b_05_1 <- i$fd10a_1c$fd10a_1c_quantity
     ag10b_05_2 <- i$fd10a_1c$fd10a_1c_units %>%
-      codetext('fd10b_unit', codedf)
+      ct('fd10b_unit')
     ag10b_06 <- i$fd10a_2
   
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, ag10b_01, ag10b_1a, ag10b_1a_unit, 
                   ag10b_1b, ag10b_05_1, ag10b_05_2, ag10b_06)
     agric_livestockbyprod <- bind_rows(agric_livestockbyprod, tempdf)
-    ct <- ct + 1
+    count <- count + 1
   }
   
   for (i in xml[names(xml)=='fd10_other_b_repeat']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     ag10b_01 <- i$fd10_other_b_byproduct_name
     ag10b_1a <- i$fd10_other_a_1a$fd10_other_a_1a_quantity
     ag10b_1a_unit <- i$fd10_other_a_1a$fd10_other_a_1a_unit %>%
-      codetext('fd10b_unit', codedf)
+      ct('fd10b_unit')
     ag10b_1b <- i$fd10_other_a_1b
     ag10b_05_1 <- i$fd10_other_a_1c$fd10_other_a_1c_quantity
     ag10b_05_2 <- i$fd10_other_a_1c$fd10_other_a_1c_units %>%
-      codetext('fd10b_unit', codedf)
+      ct('fd10b_unit')
     ag10b_06 <- i$fd10_other_a_2
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, ag10b_01, ag10b_1a, ag10b_1a_unit, 
                             ag10b_1b, ag10b_05_1, ag10b_05_2, ag10b_06)
     agric_livestockbyprod <- bind_rows(agric_livestockbyprod, tempdf)
-    ct <- ct + 1
+    count <- count + 1
   }
   
   #########################################
@@ -924,9 +920,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   ########################################
 
   agric_permcrop <- data.frame()
-  ct <- 1
+  count <- 1
   for(i in xml[names(xml)=='fd7aii_crops']){
-    uuid <- paste0(survey_uuid, '/', ct, 'aii')
+    uuid <- paste0(survey_uuid, '/', count, 'aii')
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     crop_type <- 'permanent'
@@ -934,19 +930,19 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag7a_02 <- i$fd7ii_check$fd7ii_fr1_02
     ag7a_03_1 <- i$fd7ii_check$fd7ii_fr1_1$fd7ii_fr1_03_1
     ag7a_03_2 <- i$fd7ii_check$fd7ii_fr1_1$fd7ii_fr1_03_2 %>%
-      codetext('kg_liter', codedf)
+      ct('kg_liter')
     ag7a_04 <- i$fd7ii_check$fd7ii_fr1_1$fd7ii_fr1_04
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, crop_type,
                             crop_name, ag7a_02, ag7a_03_1, ag7a_03_2,
                             ag7a_04)
     agric_permcrop <- bind_rows(agric_permcrop, tempdf)
-    ct <- ct + 1
+    count <- count + 1
   }
   
-  ct <- 1
+  count <- 1
   for(i in xml[names(xml)=='fd7bii_crops']){
-    uuid <- paste0(survey_uuid, '/', ct, 'bii')
+    uuid <- paste0(survey_uuid, '/', count, 'bii')
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     crop_type <- 'fruit'
@@ -954,14 +950,14 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     ag7a_02 <- i$fd7bii_check$fd7bii_fr1_02
     ag7a_03_1 <- i$fd7bii_check$fd7bii_fr1_1$fd7bii_fr1_03_1
     ag7a_03_2 <- i$fd7bii_check$fd7bii_fr1_1$fd7bii_fr1_03_2 %>%
-      codetext('kg_liter', codedf)
+      ct('kg_liter')
     ag7a_04 <- i$fd7bii_check$fd7bii_fr1_1$fd7bii_fr1_04
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, crop_type,
                             crop_name, ag7a_02, ag7a_03_1, ag7a_03_2,
                             ag7a_04)
     agric_permcrop <- bind_rows(agric_permcrop, tempdf)
-    ct <- ct + 1
+    count <- count + 1
   }
   
   agric_permcrop <- agric_permcrop %>% filter(!is.na(crop_name), crop_name != 'None')
@@ -971,9 +967,9 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
   #############################
   
   agric_priceinfo <- data.frame()
-  ct <- 1
+  count <- 1
   for(i in xml[names(xml)=='fd12_repeat_family']){
-    uuid <- paste0(survey_uuid, '/', ct)
+    uuid <- paste0(survey_uuid, '/', count)
     parent_uuid <- survey_uuid
     survey_uuid <- survey_uuid
     source_name_family <- i$fd12_source_name_family
@@ -984,35 +980,35 @@ agriculture_survey_15_may_2016 <- function(con, xml, test=FALSE, codedf){
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, source_name_family,
                             ag12b_06, ag12b_08, ag12b_09)
     agric_priceinfo <- bind_rows(agric_priceinfo, tempdf)
-    ct <- ct + 1
+    count <- count + 1
   }
   
   ########################
   #Write Info
   #########################
-  insertDF(con, agric, 'agric', test)
-  insertDF(con, piigeo_agric, 'piigeo_agric', test)
-  insertDF(con, piiname_agric, 'piiname_agric', test)
-  insertDF(con, agric_cropbyprod, 'agric_cropbyprod', test)
-  insertDF(con, agric_extension, 'agric_extension', test)
-  insertDF(con, agric_field, 'agric_field', test)
-  insertDF(con, piigeo_agric_field, 'piigeo_agric_field', test)
-  insertDF(con, agric_field_permcrop, 'agric_field_permcrop', test)
-  insertDF(con, agric_field_season, 'agric_field_season', test)
-  insertDF(con, agric_field_season_individual, 'agric_field_season_individual', test)
-  insertDF(con, piiname_agric_field_season_individual, 'piiname_agric_field_season_individual', test)
-  insertDF(con, agric_field_season_fieldcrop, 'agric_field_season_fieldcrop', test)
-  insertDF(con, agric_fieldcrop, 'agric_fieldcrop', test)
-  insertDF(con, agric_implement, 'agric_implement', test)
-  insertDF(con, agric_individual, 'agric_individual', test)
-  insertDF(con, piiname_agric_individual, 'piiname_agric_individual', test)
-  insertDF(con, agric_livestock, 'agric_livestock', test)
-  insertDF(con, agric_livestockbyprod, 'agric_livestockbyprod', test)
-  insertDF(con, agric_permcrop, 'agric_permcrop', test)
-  insertDF(con, agric_priceinfo, 'agric_priceinfo', test)
+  insertDF(dbcon, agric, 'agric', test)
+  insertDF(dbcon, piigeo_agric, 'piigeo_agric', test)
+  insertDF(dbcon, piiname_agric, 'piiname_agric', test)
+  insertDF(dbcon, agric_cropbyprod, 'agric_cropbyprod', test)
+  insertDF(dbcon, agric_extension, 'agric_extension', test)
+  insertDF(dbcon, agric_field, 'agric_field', test)
+  insertDF(dbcon, piigeo_agric_field, 'piigeo_agric_field', test)
+  insertDF(dbcon, agric_field_permcrop, 'agric_field_permcrop', test)
+  insertDF(dbcon, agric_field_season, 'agric_field_season', test)
+  insertDF(dbcon, agric_field_season_individual, 'agric_field_season_individual', test)
+  insertDF(dbcon, piiname_agric_field_season_individual, 'piiname_agric_field_season_individual', test)
+  insertDF(dbcon, agric_field_season_fieldcrop, 'agric_field_season_fieldcrop', test)
+  insertDF(dbcon, agric_fieldcrop, 'agric_fieldcrop', test)
+  insertDF(dbcon, agric_implement, 'agric_implement', test)
+  insertDF(dbcon, agric_individual, 'agric_individual', test)
+  insertDF(dbcon, piiname_agric_individual, 'piiname_agric_individual', test)
+  insertDF(dbcon, agric_livestock, 'agric_livestock', test)
+  insertDF(dbcon, agric_livestockbyprod, 'agric_livestockbyprod', test)
+  insertDF(dbcon, agric_permcrop, 'agric_permcrop', test)
+  insertDF(dbcon, agric_priceinfo, 'agric_priceinfo', test)
   
   if (!test){
-    dbSendQuery(con$con, paste0('INSERT INTO migration_audit VALUES (\'', 
+    dbSendQuery(dbcon$con, paste0('INSERT INTO migration_audit VALUES (\'', 
                               survey_uuid, "',",
                               "'agriculture_survey_15_may_2016','",
                               xml$today,"',current_date);")) 

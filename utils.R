@@ -166,22 +166,22 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
   
 }
 
-codetext <- function(code, list.name, codedf, country, region){
+ct <- function(code, list.name, country, region){
   
   if(is.null(code)){
     return(NULL)
   }
   
-  codedf <- codedf[which(codedf$`list name` == list.name), ]
+  df <- codedf[which(codedf$`list name` == list.name), ]
   
   if(!missing(country)){
-    codedf <- codedf[df$country == country, ]
+    df <- df[df$country == country, ]
   }
   if(!missing(region)){
-    codedf <- codedf[df$region == region, ]
+    df <- df[df$region == region, ]
   }
   
-  codedf$label[match(code, codedf$name)]
+  df$label[match(code, df$name)]
   
 }
 

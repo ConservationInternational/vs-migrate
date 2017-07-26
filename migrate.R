@@ -2,16 +2,18 @@ library(dplyr)
 library(XML)
 library(RPostgreSQL)
 library(readxl)
+library(tidyr)
 
 setwd('D:/Documents and Settings/mcooper/GitHub/vs-migrate/')
 
-#db <- 'local'
-db <- 'prod'
+db <- 'local'
+#db <- 'prod'
 
-forms <- c('agriculture_survey_15_may_2016')#'ffs_yields_paddy_maize_17_sep_2015_v1')#, 'ffs_yields_maize_02_jul_2015_v1', 'ffs_yields_paddy_maize_02_july_2015_v1', 'ffs_yields_maize_17_sep_2015_v1')
+forms <- 'house_hold_15_may_2016_v1'#c('agriculture_survey_15_may_2016', 'ffs_yields_paddy_maize_17_sep_2015_v1')
 
 options(stringsAsFactors = F)
 
+source('utils.R')
 source('formhub_connection.R')
 fhcon <- src_postgres(dbname = dbname, host = host, port = port, user = user, password = password)
 
@@ -50,6 +52,9 @@ for (i in 1:nrow(instances)){
   }
   if (instances$xform_id[i]==63){
     agriculture_survey_15_may_2016(dbcon, instances$xml[i], test=test, codedf=read_excel('ag/VS_Agriculture_15.05.2016.xls', sheet='choices'))
+  }
+  if (instances$xform_id[i]==56){
+    house_hold_15_may_2016_v1(dbcon, instances$xml[i], test=test, codedf=read_excel('ag/VS_Agriculture_15.05.2016.xls', sheet='choices'))
   }
 }
 
