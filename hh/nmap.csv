@@ -1,9 +1,69 @@
-hv2_01,Wild meat
-hv2_02,Wild insects
-hv2_03,Fish from local rivers/creeks
-hv2_04,Nuts or seeds
-hv2_05,Building materials (e.g. wood that is not used as a fuel source) 
-hv2_06,Medicinal Plants
-hv2_07,Items for special ceremonies
-hv2_08,Honey
-hv2_09,Other
+item,itemcode
+Radio and Radio Cassette,n_401
+Telephone(landline),n_402
+Telephone(mobile),n_403
+Refridgerator or freezer,n_404
+Sewing Machine,n_405
+TV set,n_406
+Video / DVD,n_407
+Chairs,n_408
+Sofas,n_409
+Tables,n_410
+Watches,n_411
+Beds,n_412
+"Cupboards, chest-of-drawers, boxes, wardrobes,bookcases",n_413
+Lanterns,n_414
+Computer,n_415
+"Cooking pots, Cups, other kitchen utencils",n_416
+Mosquito net,n_417
+Iron (Charcoal or electric),n_418
+Electric/gas stove,n_419
+Other stove,n_420
+Water-heater,n_421
+"Record/cassette player, tape recorder",n_422
+Complete music system,n_423
+Books (not school books),n_424
+Motor Vehicles,n_425
+Motor cycle,n_426
+Bicycle,n_427
+Carts,n_428
+Animal-drawn cart,n_429
+Boat/canoe,n_430
+Wheel barrow,n_431
+Livestock,n_432
+Poultry,n_433
+Outboard engine,n_434
+Donkeys,n_435
+Fields/Land,n_436
+House(s),n_437
+Fan/Airconditioner,n_438
+Dish antena/decoder,n_439
+Hoes,n_440
+Spraying machine,n_441
+Water pumping set,n_442
+Reapers,n_443
+Tractor,n_444
+Trailer for tractors etc.,n_445
+Plough etc.,n_446
+Harrow,n_447
+Milking machine,n_448
+Harvesting and threshing machine,n_449
+Hand milling machine,n_450
+Coffee pulping machine,n_451
+Fertilizer distributor,n_452
+Raincoat,n_453
+Umbrella,n_454
+Wellington Boots,n_455
+Waders Boots,n_456
+Oven (Traditional),n_457
+Chorkor smoker,n_458
+Improved smoker (FRI food research institute),n_459
+Silos,n_460
+Sheds,n_461
+Storeroom,n_462
+Cutlass,n_463
+Axe,n_464
+"""Soso"" (used to dig holes/pluck plantains/harvest yams)",n_465
+Sickle (for cocoa harvesting),n_466
+Sickle (gras cutting/threshing),n_467
+Watering can,n_468

@@ -465,8 +465,227 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
   }
   
   ######################################
-  #household_individual
+  #household_individual 
+  #&
+  #piiname_household_individual
   #####################################
   
-
+  piiname_household_individual <- data.frame()
+  household_individual_a <- data.frame()
+  count <- 1
+  for (i in xml$b_roster[names(xml$b_roster)=='b_roster_repeat']){
+    uuid <- paste0(survey_uuid, '/', count)
+    parent_uuid <- survey_uuid
+    survey_uuid <- survey_uuid
+    ind_refno <- paste0('I', substr(100 + count, 2, 3))
+    hh_b02 <- i$demo$hh_b02 %>%
+      ct('mf')
+    hh_indid <- i$indid
+    hh_b05 <- i$demo$hh_b05 %>%
+      ct('relhh')
+    
+    tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, ind_refno, hh_b02, hh_b05)
+    household_individual_a <- bind_rows(household_individual_a, tempdf)
+    
+    tempdf <- vs.data.frame(uuid, hh_indid)
+    piiname_household_individual <- bind_rows(piiname_household_individual, tempdf)
+    
+    count <- count + 1
+  }
+  
+  household_individual_b <- data.frame()
+  count <- 1
+  for (i in xml[names(xml)=='b_roster_repeat2']){
+    uuid <- paste0(survey_uuid, '/', count)
+    hh_b03 <- i$hh_b03
+    hh_b04 <- i$hh_b04
+    hh_b07 <- i$h_b_78$hh_b07
+    hh_b08 <- i$h_b_78$hh_b08
+    
+    tempdf <- vs.data.frame(uuid, hh_b03, hh_b04, hh_b07, hh_b08)
+    
+    household_individual_b <- bind_rows(household_individual_b, tempdf)
+    
+    count <- count + 1
+  }
+  
+  household_individual_c <- data.frame()
+  count <- 1
+  for (i in xml[names(xml)=='C_E_HV1_repeat']){
+    uuid <- paste0(survey_uuid, '/', count)
+    hh_c01 <- i$C_group$C01$hh_c01
+    hh_c02 <- i$C_group$C01$hh_c02 %>%
+      ct('language')
+    hh_c03 <- i$C_group$C01$hh_c03
+    hh_c07 <- i$C_group$hh_c07 %>%
+      ct('grade')
+    hh_e04 <- i$E01$hh_e04
+    hh_e06 <- i$E01$hh_e06 %>%
+      ct('work')
+    hh_e08 <- i$E01$hh_e08
+    hh_e22_1 <- i$E01$hh_e08_group$hh_e22$hh_e22_1
+    hh_e22_2 <- i$E01$hh_e08_group$hh_e22$hh_e22_2 %>%
+      ct('time')
+    hh_e23 <- i$E01$hh_e08_group$hh_e22$hh_e23
+    hh_e24_1 <- i$E01$hh_e08_group$hh_e24$hh_e24_1
+    hh_e24_2 <- i$E01$hh_e08_group$hh_e24$hh_e24_2 %>%
+      ct('time')
+    hh_e25 <- i$E01$hh_etime$hh_e25
+    hh_e26 <- i$E01$hh_etime$hh_e26
+    hh_e27 <- i$E01$hh_etime$hh_e27
+    hh_e28 <- i$E01$hh_etime$hh_e28
+    hh_e51 <- i$E01$hh_e51
+    hh_e52 <- i$E01$hh_e52
+    hh_e64_1 <- i$E01$hh_e_self01$h_einc$hh_e64_1
+    hh_e64_2 <- i$E01$hh_e_self01$h_einc$hh_e64_2 %>%
+      ct('weekmonth')
+    hh_e65_1 <- i$E01$hh_e_self01$h_eprof$hh_e65_1
+    hh_e65_2 <- i$E01$hh_e_self01$h_eprof$hh_e65_2 %>%
+      ct('weekmonth')
+    hh_hv103 <- i$HV1$hh_hv103
+    hh_hv104 <- i$HV1$hh_hv103_y$hh_hv104 %>%
+      ct('collect_firewood')
+    hh_hv105 <- i$HV1$hh_hv103_y$hh_hv105
+    hh_hv105_other <- i$HV1$hh_hv103_y$hh_hv105_other
+    hh_hv105_unit <- i$HV1$hh_hv103_y$hh_hv105_unit
+    hh_hv105a <- i$HV1$hh_hv103_y$hh_hv105a
+    
+    tempdf <- vs.data.frame(uuid, hh_c01, hh_c02, hh_c03, hh_c07, hh_e04, hh_e06, hh_e08, 
+                            hh_e22_1, hh_e22_2, hh_e23, hh_e24_1, hh_e24_2, hh_e25, hh_e26, 
+                            hh_e27, hh_e28, hh_e51, hh_e52, hh_e64_1, hh_e64_2, hh_e65_1, 
+                            hh_e65_2, hh_hv103, hh_hv104, hh_hv105, hh_hv105_other, hh_hv105_unit, 
+                            hh_hv105a)
+    household_individual_c <- bind_rows(household_individual_c, tempdf)
+    count <- count + 1
+  }
+  
+  household_individual_d <- data.frame()
+  count <- 1
+  for (i in xml$u_anthro[names(xml$u_anthro)=='u_anthro_repeat']){
+    uuid <- paste0(survey_uuid, '/', count)
+    hh_u1 <- i$u1_01
+    hh_u2 <- i$u1_group_01$u2_01
+    hh_u3 <- i$u1_group_01$u3_01
+    hh_u4 <- i$u1_group_01$u4_01 %>%
+      ct('u5')
+    hh_u5 <- i$u1_group_01$u5_01
+    hh_u6 <- i$u1_group_01$u6_01
+    hh_u7 <- i$u1_group_01$u7_01 %>%
+      ct('u2')
+    hh_u7_other <- i$u1_group_01$u7_01_other
+  
+    tempdf <- vs.data.frame(uuid, hh_u1, hh_u2, hh_u3, hh_u4, hh_u5, hh_u6, hh_u7, hh_u7_other)
+    household_individual_d <- bind_rows(household_individual_d, tempdf)
+    count <- count + 1
+  }
+  
+  household_individual <- Reduce(merge, list(household_individual_a, household_individual_b, 
+                                             household_individual_c, household_individual_d))
+  
+  #######################
+  #household_possession
+  #######################
+  
+  household_possession <- data.frame(itemcode = tolower(names(xml$n_assets)[names(xml$n_assets)!='n_note']), count=unlist(xml$n_assets))
+  
+  household_possession$parent_uuid <- survey_uuid
+  household_possession$survey_uuid <- survey_uuid
+  household_possession$uuid <- paste0(survey_uuid, '/', 1:nrow(household_possession))
+  
+  n <- read.csv('hh/nmap.csv')
+  
+  household_possession <- merge(household_possession, n)
+  
+  ######################
+  #household_resource
+  ######################
+  
+  hv2_10_09_oth <- xml$HV2$hv2_10_09_oth
+  
+  hv2_10_01 <- xml$HV2$hv2_10$hv2_10_01
+  hv2_10_02 <- xml$HV2$hv2_10$hv2_10_02
+  hv2_10_03 <- xml$HV2$hv2_10$hv2_10_03
+  hv2_10_04 <- xml$HV2$hv2_10$hv2_10_04
+  hv2_10_05 <- xml$HV2$hv2_10$hv2_10_05
+  hv2_10_06 <- xml$HV2$hv2_10$hv2_10_06
+  hv2_10_07 <- xml$HV2$hv2_10$hv2_10_07
+  hv2_10_08 <- xml$HV2$hv2_10$hv2_10_08
+  hv2_10_09 <- xml$HV2$hv2_10$hv2_10_09
+  hv2_11_01 <- xml$HV2$hv2_wm_2$hv2_11_01
+  hv2_11_02 <- xml$HV2$hv2_wi_2$hv2_11_02
+  hv2_11_03 <- xml$HV2$hv2_fish_2$hv2_11_03
+  hv2_11_04 <- xml$HV2$hv2_nuts_2$hv2_11_04
+  hv2_11_05 <- xml$HV2$hv2_build_2$hv2_11_05
+  hv2_11_06 <- xml$HV2$hv2_mplants_2$hv2_11_06
+  hv2_11_07 <- xml$HV2$hv2_isc_2$hv2_11_07
+  hv2_11_08 <- xml$HV2$hv2_honey_2$hv2_11_08
+  hv2_11_09 <- xml$HV2$hv2_other_2$hv2_11_09
+  hv2_12_01 <- xml$HV2$hv2_wm_2$hv2_12_01
+  hv2_12_02 <- xml$HV2$hv2_wi_2$hv2_12_02
+  hv2_12_03 <- xml$HV2$hv2_fish_2$hv2_12_03
+  hv2_12_04 <- xml$HV2$hv2_nuts_2$hv2_12_04
+  hv2_12_05 <- xml$HV2$hv2_build_2$hv2_12_05
+  hv2_12_06 <- xml$HV2$hv2_mplants_2$hv2_12_06
+  hv2_12_07 <- xml$HV2$hv2_isc_2$hv2_12_07
+  hv2_12_08 <- xml$HV2$hv2_honey_2$hv2_12_08
+  hv2_12_09 <- xml$HV2$hv2_other_2$hv2_12_09
+  hv2_13_01 <- xml$HV2$hv2_wm_2$hv2_13_01
+  hv2_13_02 <- xml$HV2$hv2_wi_2$hv2_13_02
+  hv2_13_03 <- xml$HV2$hv2_fish_2$hv2_13_03
+  hv2_13_04 <- xml$HV2$hv2_nuts_2$hv2_13_04
+  hv2_13_05 <- xml$HV2$hv2_build_2$hv2_13_05
+  hv2_13_06 <- xml$HV2$hv2_mplants_2$hv2_13_06
+  hv2_13_07 <- xml$HV2$hv2_isc_2$hv2_13_07
+  hv2_13_08 <- xml$HV2$hv2_honey_2$hv2_13_08
+  hv2_13_09 <- xml$HV2$hv2_other_2$hv2_13_09
+  hv2_14_01 <- xml$HV2$hv2_wm_2$hv2_14_01
+  hv2_14_02 <- xml$HV2$hv2_wi_2$hv2_14_02
+  hv2_14_03 <- xml$HV2$hv2_fish_2$hv2_14_03
+  hv2_14_04 <- xml$HV2$hv2_nuts_2$hv2_14_04
+  hv2_14_05 <- xml$HV2$hv2_build_2$hv2_14_05
+  hv2_14_06 <- xml$HV2$hv2_mplants_2$hv2_14_06
+  hv2_14_07 <- xml$HV2$hv2_isc_2$hv2_14_07
+  hv2_14_08 <- xml$HV2$hv2_honey_2$hv2_14_08
+  hv2_14_09 <- xml$HV2$hv2_other_2$hv2_14_09
+  hv2_15_01 <- xml$HV2$hv2_wm_2$hv2_15_01
+  hv2_15_02 <- xml$HV2$hv2_wi_2$hv2_15_02
+  hv2_15_03 <- xml$HV2$hv2_fish_2$hv2_15_03
+  hv2_15_04 <- xml$HV2$hv2_nuts_2$hv2_15_04
+  hv2_15_05 <- xml$HV2$hv2_build_2$hv2_15_05
+  hv2_15_06 <- xml$HV2$hv2_mplants_2$hv2_15_06
+  hv2_15_07 <- xml$HV2$hv2_isc_2$hv2_15_07
+  hv2_15_08 <- xml$HV2$hv2_honey_2$hv2_15_08
+  hv2_15_09 <- xml$HV2$hv2_other_2$hv2_15_09
+  
+  hh_nr <- vs.data.frame(hv2_10_01, hv2_10_02, hv2_10_03, hv2_10_04, hv2_10_05, hv2_10_06, hv2_10_07, 
+                         hv2_10_08, hv2_10_09, hv2_11_01, hv2_11_02, hv2_11_03, hv2_11_04, hv2_11_05, 
+                         hv2_11_06, hv2_11_07, hv2_11_08, hv2_11_09, hv2_12_01, hv2_12_02, hv2_12_03, 
+                         hv2_12_04, hv2_12_05, hv2_12_06, hv2_12_07, hv2_12_08, hv2_12_09, hv2_13_01, 
+                         hv2_13_02, hv2_13_03, hv2_13_04, hv2_13_05, hv2_13_06, hv2_13_07, hv2_13_08, 
+                         hv2_13_09, hv2_14_01, hv2_14_02, hv2_14_03, hv2_14_04, hv2_14_05, hv2_14_06, 
+                         hv2_14_07, hv2_14_08, hv2_14_09, hv2_15_01, hv2_15_02, hv2_15_03, hv2_15_04, 
+                         hv2_15_05, hv2_15_06, hv2_15_07, hv2_15_08, hv2_15_09) %>%
+    gather(key, value) %>%
+    mutate(variable = paste0('hv2_', substr(key, 8,9)),
+           key = paste0('hh_', substr(key, 1, 6))) %>%
+    spread(key, value)
+  
+  nrmap <- read.csv('hh/nrmap.csv')
+  
+  household_resource <- merge(nrmap, hh_nr)
+  
+  household_resource$uuid <- paste0(survey_uuid, '/', seq(1, nrow(household_resource)))
+  household_resource$survey_uuid <- survey_uuid
+  household_resource$parent_uuid <- survey_uuid
+  household_resource$variable <- NULL
+  
+  if(!is.null(hv2_10_09_oth)){
+    household_resource$resource[household_resource$resource=='Other'] <- hv2_10_09_oth
+  }
+  
+  ####################################
+  #household_water
+  ###################################
+  
+  
 }
