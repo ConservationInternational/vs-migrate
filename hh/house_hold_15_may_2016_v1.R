@@ -687,5 +687,90 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
   #household_water
   ###################################
   
+  j22_02 <- xml$J2_Water$j21_02$j22_02 %>% ct('j23')
+  j23_02_1 <- xml$J2_Water$j21_02$j23_02$j23_02_1
+  j23_02_2 <- xml$J2_Water$j21_02$j23_02$j23_02_2 %>% ct('j24')
+  j24_02 <- xml$J2_Water$j21_02$j24_02
+  j22_03 <- xml$J2_Water$j21_03$j22_03 %>% ct('j23')
+  j23_03_1 <- xml$J2_Water$j21_03$j23_03$j23_03_1
+  j23_03_2 <- xml$J2_Water$j21_03$j23_03$j23_03_2 %>% ct('j24')
+  j24_03 <- xml$J2_Water$j21_03$j24_03
+  j22_04 <- xml$J2_Water$j21_04$j22_04 %>% ct('j23')
+  j23_04_1 <- xml$J2_Water$j21_04$j23_04$j23_04_1
+  j23_04_2 <- xml$J2_Water$j21_04$j23_04$j23_04_2 %>% ct('j24')
+  j24_04 <- xml$J2_Water$j21_04$j24_04
+  j22_05 <- xml$J2_Water$j21_05$j22_05 %>% ct('j23')
+  j23_05_1 <- xml$J2_Water$j21_05$j23_05$j23_05_1
+  j23_05_2 <- xml$J2_Water$j21_05$j23_05$j23_05_2 %>% ct('j24')
+  j24_05 <- xml$J2_Water$j21_05$j24_05
+  j22_06 <- xml$J2_Water$j21_06$j22_06 %>% ct('j23')
+  j23_06_1 <- xml$J2_Water$j21_06$j23_06$j23_06_1
+  j23_06_2 <- xml$J2_Water$j21_06$j23_06$j23_06_2 %>% ct('j24')
+  j24_06 <- xml$J2_Water$j21_06$j24_06
+  j22_07 <- xml$J2_Water$j21_07$j22_07 %>% ct('j23')
+  j23_07_1 <- xml$J2_Water$j21_07$j23_07$j23_07_1
+  j23_07_2 <- xml$J2_Water$j21_07$j23_07$j23_07_2 %>% ct('j24')
+  j24_07 <- xml$J2_Water$j21_07$j24_07
+  j22_08 <- xml$J2_Water$j21_08$j22_08 %>% ct('j23')
+  j23_08_1 <- xml$J2_Water$j21_08$j23_08$j23_08_1
+  j23_08_2 <- xml$J2_Water$j21_08$j23_08$j23_08_2 %>% ct('j24')
+  j24_08 <- xml$J2_Water$j21_08$j24_08
+  j22_09 <- xml$J2_Water$j21_09$j22_09 %>% ct('j23')
+  j23_09_1 <- xml$J2_Water$j21_09$j23_09$j23_09_1
+  j23_09_2 <- xml$J2_Water$j21_09$j23_09$j23_09_2 %>% ct('j24')
+  j24_09 <- xml$J2_Water$j21_09$j24_09
+  j22_10 <- xml$J2_Water$j21_10$j22_10 %>% ct('j23')
+  j23_10_1 <- xml$J2_Water$j21_10$j23_10$j23_10_1
+  j23_10_2 <- xml$J2_Water$j21_10$j23_10$j23_10_2 %>% ct('j24')
+  j24_10 <- xml$J2_Water$j21_10$j24_10
+  j22_11 <- xml$J2_Water$j21_11$j22_11 %>% ct('j23')
+  j23_11_1 <- xml$J2_Water$j21_11$j23_11$j23_11_1
+  j23_11_2 <- xml$J2_Water$j21_11$j23_11$j23_11_2 %>% ct('j24')
+  j24_11 <- xml$J2_Water$j21_11$j24_11
+  j22_12 <- xml$J2_Water$j21_12$j22_12 %>% ct('j23')
+  j23_12_1 <- xml$J2_Water$j21_12$j23_12$j23_12_1
+  j23_12_2 <- xml$J2_Water$j21_12$j23_12$j23_12_2 %>% ct('j24')
+  j24_12 <- xml$J2_Water$j21_12$j24_12
+  j22_13 <- xml$J2_Water$j21_13$j22_13 %>% ct('j23')
+  j22_14 <- xml$J2_Water$j21_14$j22_14 %>% ct('j23')
+  j23_14_1 <- xml$J2_Water$j21_14$j23_14$j23_14_1
+  j23_14_2 <- xml$J2_Water$j21_14$j23_14$j23_14_2 %>% ct('j24')
+  j24_14 <- xml$J2_Water$j21_14$j24_14
   
+  household_water <- vs.data.frame(j22_02, j23_02_1, j23_02_2, j24_02, j22_03, j23_03_1, j23_03_2, 
+                                   j24_03, j22_04, j23_04_1, j23_04_2, j24_04, j22_05, j23_05_1, 
+                                   j23_05_2, j24_05, j22_06, j23_06_1, j23_06_2, j24_06, j22_07, 
+                                   j23_07_1, j23_07_2, j24_07, j22_08, j23_08_1, j23_08_2, j24_08, 
+                                   j22_09, j23_09_1, j23_09_2, j24_09, j22_10, j23_10_1, j23_10_2, 
+                                   j24_10, j22_11, j23_11_1, j23_11_2, j24_11, j22_12, j23_12_1, 
+                                   j23_12_2, j24_12, j22_13, j22_14, j23_14_1, j23_14_2, j24_14) %>%
+    gather(var, value) %>%
+    mutate(variable=as.numeric(substr(var, 5, 6))) %>%
+    mutate(column=gsub('_..', '', var)) %>%
+    merge(read.csv('hh/jmap.csv')) %>%
+    mutate(uuid=paste0(survey_uuid, '/', variable), var=NULL, variable=NULL, 
+           parent_uuid=survey_uuid, survey_uuid=survey_uuid) %>%
+    spread(column, value) %>%
+    filter(!is.na(j22))
+  
+  ########################
+  #Write Info
+  #########################
+  insertDF(dbcon, household, 'household', test)
+  insertDF(dbcon, piiname_household, 'piiname_household', test)
+  insertDF(dbcon, piigeo_household, 'piigeo_household', test)
+  insertDF(dbcon, household_expenditure, 'household_expenditure', test)
+  insertDF(dbcon, household_food, 'household_food', test)
+  insertDF(dbcon, household_individual, 'household_individual', test)
+  insertDF(dbcon, piiname_household_individual, 'piiname_household_individual', test)
+  insertDF(dbcon, household_possession, 'household_possession', test)
+  insertDF(dbcon, household_resource, 'household_resource', test)
+  insertDF(dbcon, household_water, 'household_water', test)
+
+  if (!test){
+  dbSendQuery(dbcon$con, paste0('INSERT INTO migration_audit VALUES (\'', 
+                                survey_uuid, "',",
+                                "'household_hold_15_may_2016_v1','",
+                                xml$today,"',current_date);")) 
+  }
 }

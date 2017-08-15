@@ -16,7 +16,6 @@ getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
     i <- 1
     while(new_id %in% ids$id){
       new_id <- paste0(country_, '-', landscape_no_, '-H', substr(100 + i, 2,3))
-      print(new_id)
       i <- i + 1
     }
     
@@ -139,8 +138,8 @@ insertCollapse <- function(vect, vars){
     if (is.na(v)){
       v <- 'NULL'
     } else if(!is.logical(v) & type=='boolean'){
-      v <- ifelse(v=='1', "'t'", 
-                  ifelse(v=='2', "'f'", 
+      v <- ifelse((v=='1' | v=='TRUE'), "'t'", 
+                  ifelse((v=='2' | v=='FALSE'), "'f'", 
                          stop(paste0('Column type is bool but value isn\'t. on ', names(vars$column_name[i])))))
     } else if(is.logical(v)){
       v <- ifelse(v, "'t'", "'f'")
@@ -161,7 +160,6 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
   #Insert data
   
   for (i in 1:ncol(df)){
-    print(i)
     if (class(df[, i]) == 'factor'){
       df[, i] <- as.character(df[ ,i])
     }

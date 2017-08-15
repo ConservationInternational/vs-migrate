@@ -9,7 +9,7 @@ setwd('D:/Documents and Settings/mcooper/GitHub/vs-migrate/')
 db <- 'local'
 #db <- 'prod'
 
-forms <- 'eplot_15_may_2016_v1'#c('house_hold_15_may_2016_v1', 'agriculture_survey_15_may_2016', 'ffs_yields_paddy_maize_17_sep_2015_v1')
+forms <- 'house_hold_15_may_2016_v1'#'eplot_15_may_2016_v1'#c('house_hold_15_may_2016_v1', 'agriculture_survey_15_may_2016', 'ffs_yields_paddy_maize_17_sep_2015_v1')
 
 options(stringsAsFactors = F)
 
