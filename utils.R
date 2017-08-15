@@ -20,12 +20,59 @@ getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
       i <- i + 1
     }
     
+    vars <- data.frame(column_name=c("id", "country", "landscape_no", "eplot_no", "hh_no", "id_old"),
+                       data_type=c("text", "character varying", "text", "text", "text", "text"))
+    
+    insertlist <- list(new_id, country_, landscape_no_, eplot_no_, hh_no_)
+    names(insertlist) <- c('id', 'country', 'landscape_no', 'eplot_no', 'hh_no')
+    
     dbSendQuery(dbcon$con, paste0("INSERT INTO household_ref VALUES (", 
-                                  insertCollapse(list(new_id, country_, landscape_no_, eplot_no_, hh_no_)),
+                                  insertCollapse(insertlist, vars),
                                   ");"))
     
     return(new_id)
-                                                      
+    
+  }
+}
+
+getSpecies <- function(dbcon, genus_, species_, subspecies_){
+  if (is.null(subspecies_)){
+    subspecies_ <- '-'
+  }
+  
+  genus_ <- gsub("[^a-zA-Z]+", "", genus_)
+  genus_ <- paste(toupper(substr(genus_, 1, 1)), substr(genus_, 2, nchar(genus_)), sep="")
+  species_ <- gsub("[^a-zA-Z]+", "", species_) %>%
+    tolower
+  
+  ps <- tbl(dbcon, 'plant_species') %>%
+    filter(genus==genus_, species==species_, subspecies==subspecies_) %>%
+    data.frame()
+  
+  if(!is.null(ps$id)){
+    return(ps$id)
+  }
+  else{
+    ids <- tbl(dbcon, 'plant_species') %>%
+      select(id) %>%
+      data.frame
+    
+    new_id <- max(ids$id) + 1
+    
+    vars <- data.frame(column_name=c("id", "plant_type", "family", "genus", "species", "subspecies", 
+                                     "common", "approved"),
+                       data_type=c("integer", "text", "text", "text", "text", "text", "text", 
+                                   "boolean"))
+    
+    insertlist <- list(new_id, genus_, species_, subspecies_)
+    names(insertlist) <- c('id', 'genus', 'species', 'subspecies')
+    
+    dbSendQuery(dbcon$con, paste0("INSERT INTO plant_species (id, genus, species, subspecies) VALUES (", 
+                                  insertCollapse(insertlist, vars),
+                                  ");"))
+    
+    return(new_id)
+    
   }
 }
 
