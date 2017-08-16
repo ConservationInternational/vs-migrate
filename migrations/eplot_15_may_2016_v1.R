@@ -1,5 +1,7 @@
 eplot_15_may_2016_v1 <- function(dbcon, xml, test=FALSE){
-  codedf <- read_xls('eplot/VS_Eplot_15.05.2016.xls', sheet = 'choices')
+  assign('codedf', read_xls('migrations/VS_Eplot_15.05.2016.xls', 
+                            sheet = 'choices'),
+         envir=.GlobalEnv)
   
   xml <- xmlToList(xml)
   
@@ -170,10 +172,17 @@ eplot_15_may_2016_v1 <- function(dbcon, xml, test=FALSE){
     ranks <- list()
     rank <- 1
     uuid <- paste0(parent_uuid, '/', rank)
-    genus <- i$subplot_holder$subplot_rank1_group$subplot_rank1_genus
-    species <- i$subplot_holder$subplot_rank1_group$subplot_rank1_species
-    subspecies <- i$subplot_holder$subplot_rank1_group$subplot_rank1_subspecies
-    common <- i$subplot_holder$subplot_rank1_group$subplot_rank1_common
+    if (!is.null(i$subplot_holder$subplot_rank1_group$subplot_rank1_species_select)){
+      splt <- strsplit(i$subplot_holder$subplot_rank1_group$subplot_rank1_species_select, '_')[[1]]
+      genus <- splt[1]
+      species <- splt[2]
+      subspecies <- NULL
+    }else{
+      genus <- i$subplot_holder$subplot_rank1_group$subplot_rank1_genus
+      species <- i$subplot_holder$subplot_rank1_group$subplot_rank1_species
+      subspecies <- i$subplot_holder$subplot_rank1_group$subplot_rank1_subspecies
+      common <- i$subplot_holder$subplot_rank1_group$subplot_rank1_common
+    }
     tree_photo <- i$subplot_holder$subplot_rank1_group$subplot_rank1_tree_rank1_photo
     stembark_photo <- i$subplot_holder$subplot_rank1_group$subplot_rank1_stambark_rank1_photo
     branch_photo <- i$subplot_holder$subplot_rank1_group$subplot_rank1_branch_rank1_photo
@@ -186,10 +195,17 @@ eplot_15_may_2016_v1 <- function(dbcon, xml, test=FALSE){
     
     rank <- 2
     uuid <- paste0(parent_uuid, '/', rank)
-    genus <- i$subplot_holder$subplot_rank2_group$subplot_rank2_genus
-    species <- i$subplot_holder$subplot_rank2_group$subplot_rank2_species
-    subspecies <- i$subplot_holder$subplot_rank2_group$subplot_rank2_subspecies
-    common <- i$subplot_holder$subplot_rank2_group$subplot_rank2_common
+    if (!is.null(i$subplot_holder$subplot_rank2_group$subplot_rank2_species_select)){
+      splt <- strsplit(i$subplot_holder$subplot_rank2_group$subplot_rank2_species_select, '_')[[1]]
+      genus <- splt[1]
+      species <- splt[2]
+      subspecies <- NULL
+    }else{
+      genus <- i$subplot_holder$subplot_rank2_group$subplot_rank2_genus
+      species <- i$subplot_holder$subplot_rank2_group$subplot_rank2_species
+      subspecies <- i$subplot_holder$subplot_rank2_group$subplot_rank2_subspecies
+      common <- i$subplot_holder$subplot_rank2_group$subplot_rank2_common
+    }
     tree_photo <- i$subplot_holder$subplot_rank2_group$subplot_rank2_tree_rank2_photo
     stembark_photo <- i$subplot_holder$subplot_rank2_group$subplot_rank2_stambark_rank2_photo
     branch_photo <- i$subplot_holder$subplot_rank2_group$subplot_rank2_branch_rank2_photo
@@ -202,10 +218,17 @@ eplot_15_may_2016_v1 <- function(dbcon, xml, test=FALSE){
     
     rank <- 3
     uuid <- paste0(parent_uuid, '/', rank)
-    genus <- i$subplot_holder$subplot_rank3_group$subplot_rank3_genus
-    species <- i$subplot_holder$subplot_rank3_group$subplot_rank3_species
-    subspecies <- i$subplot_holder$subplot_rank3_group$subplot_rank3_subspecies
-    common <- i$subplot_holder$subplot_rank3_group$subplot_rank3_common
+    if (!is.null(i$subplot_holder$subplot_rank3_group$subplot_rank3_species_select)){
+      splt <- strsplit(i$subplot_holder$subplot_rank3_group$subplot_rank3_species_select, '_')[[1]]
+      genus <- splt[1]
+      species <- splt[2]
+      subspecies <- NULL
+    }else{
+      genus <- i$subplot_holder$subplot_rank3_group$subplot_rank3_genus
+      species <- i$subplot_holder$subplot_rank3_group$subplot_rank3_species
+      subspecies <- i$subplot_holder$subplot_rank3_group$subplot_rank3_subspecies
+      common <- i$subplot_holder$subplot_rank3_group$subplot_rank3_common
+    }
     tree_photo <- i$subplot_holder$subplot_rank3_group$subplot_rank3_tree_rank3_photo
     stembark_photo <- i$subplot_holder$subplot_rank3_group$subplot_rank3_stambark_rank3_photo
     branch_photo <- i$subplot_holder$subplot_rank3_group$subplot_rank3_branch_rank3_photo
@@ -232,10 +255,16 @@ eplot_15_may_2016_v1 <- function(dbcon, xml, test=FALSE){
       basal_circ_height <- xml$metadata$meta_display$basal_circ_height
       tree_code <- j$subplot_tree_display$subplot_tree_code
       
-      genus <- j$subplot_tree_display$subplot_tree_genus
-      species <- j$subplot_tree_display$subplot_tree_species
-      subspecies <- j$subplot_tree_display$subplot_tree_subspecies
-      
+      if (!is.null(j$subplot_tree_display$subplot_tree_species_select)){
+        splt <- strsplit(j$subplot_tree_display$subplot_tree_species_select, '_')[[1]]
+        genus <- splt[1]
+        species <- splt[2]
+        subspecies <- NULL
+      }else{
+        genus <- j$subplot_tree_display$subplot_tree_genus
+        species <- j$subplot_tree_display$subplot_tree_species
+        subspecies <- j$subplot_tree_display$subplot_tree_subspecies
+      }
       tax <- getSpecies(dbcon, genus, species, subspecies)
       stem_class <- j$subplot_tree_stems
       if (stem_class == '1'){

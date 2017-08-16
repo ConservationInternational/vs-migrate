@@ -118,6 +118,9 @@ expandSelMulti <- function(l, allvar, testnums){
 }
 
 makeGps <- function(sign, value){
+  if (is.null(sign) & is.null(value)){
+    return(NULL)
+  }
   value <- as.numeric(value)
   if (sign %in% c('s', 'w')){
     value <- -value
@@ -158,6 +161,11 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
   #Format sql string, casting variables as appropriate
   #Check that uuid does not already exist, if it does and is a test run, then delete uuid
   #Insert data
+  
+  if (nrow(df)==0){
+    warnings('Table', tablename, 'is empty!')
+    return(NULL)
+  }
   
   for (i in 1:ncol(df)){
     if (class(df[, i]) == 'factor'){

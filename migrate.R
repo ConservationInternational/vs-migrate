@@ -9,7 +9,7 @@ setwd('D:/Documents and Settings/mcooper/GitHub/vs-migrate/')
 db <- 'local'
 #db <- 'prod'
 
-forms <- 'house_hold_15_may_2016_v1'#'eplot_15_may_2016_v1'#c('house_hold_15_may_2016_v1', 'agriculture_survey_15_may_2016', 'ffs_yields_paddy_maize_17_sep_2015_v1')
+forms <- 'eplot_15_may_2016_v1'#'agriculture_survey_15_may_2016'#'house_hold_15_may_2016_v1'##c('house_hold_15_may_2016_v1', , 'ffs_yields_paddy_maize_17_sep_2015_v1')
 
 options(stringsAsFactors = F)
 
@@ -44,6 +44,12 @@ instances <- tbl(fhcon, 'odk_logger_instance') %>%
   select(xml, uuid, xform_id) %>%
   collect %>%
   filter(xform_id %in% ids)
+
+scripts <- list.files(path='migrations', pattern='.R$', recursive = T)
+
+for (s in scripts){
+  source(paste0('migrations/', s))
+}
 
 for (i in 1:nrow(instances)){
   print(i)

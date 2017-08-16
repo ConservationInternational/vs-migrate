@@ -1,5 +1,7 @@
-house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
-  codedf <- read_xls('hh/VS_Household.15.05.2016.xls', sheet = 'choices')
+house_hold_15_may_2016_v1 <- function(dbcon, xml, test=FALSE){
+  assign('codedf', read_xls('migrations/VS_Household.15.05.2016.xls', 
+                            sheet = 'choices'),
+         envir=.GlobalEnv)
   
   xml <- xmlToList(xml)
   
@@ -407,7 +409,7 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
   tempdf$var[grepl('_2$', tempdf$itemcode)] <- 'hh_paid'
   tempdf$itemcode <- gsub('_.$', '', tempdf$itemcode)
   
-  lmap <- read.csv('hh/lmap.csv')
+  lmap <- read.csv('migrations/lmap.csv')
   
   household_expenditure <- tempdf %>% spread(var, value) %>%
     merge(lmap, all.x=T, all.y=F)
@@ -442,17 +444,19 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
     hh_k_06_2 <- i$k_06$k_06_2
     hh_k_item <- i$k_item
     hh_k_item_other <- NULL
-    if (i$k_item_code == '0112'){
-      hh_k_item_other <- xml$K_Food$k1_0112_oth
-    }
-    if (i$k_item_code == '0207'){
-      hh_k_item_other <- xml$K_Food$k1_0207_oth
-    }
-    if (i$k_item_code == '1004'){
-      hh_k_item_other <- xml$K_Food$k1_1004_oth
-    }
-    if (i$k_item_code == '1103'){
-      hh_k_item_other <- xml$K_Food$k1_1103_oth
+    if(!is.null(i$k_item_code)){
+      if (i$k_item_code == '0112'){
+        hh_k_item_other <- xml$K_Food$k1_0112_oth
+      }
+      if (i$k_item_code == '0207'){
+        hh_k_item_other <- xml$K_Food$k1_0207_oth
+      }
+      if (i$k_item_code == '1004'){
+        hh_k_item_other <- xml$K_Food$k1_1004_oth
+      }
+      if (i$k_item_code == '1103'){
+        hh_k_item_other <- xml$K_Food$k1_1103_oth
+      }
     }
     
     tempdf <- vs.data.frame(uuid, parent_uuid, survey_uuid, hh_k_02_1, hh_k_02_2, 
@@ -592,7 +596,7 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
   household_possession$survey_uuid <- survey_uuid
   household_possession$uuid <- paste0(survey_uuid, '/', 1:nrow(household_possession))
   
-  n <- read.csv('hh/nmap.csv')
+  n <- read.csv('migrations/nmap.csv')
   
   household_possession <- merge(household_possession, n)
   
@@ -670,7 +674,7 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
            key = paste0('hh_', substr(key, 1, 6))) %>%
     spread(key, value)
   
-  nrmap <- read.csv('hh/nrmap.csv')
+  nrmap <- read.csv('migrations/nrmap.csv')
   
   household_resource <- merge(nrmap, hh_nr)
   
@@ -747,7 +751,7 @@ house_hold_15_may_2016 <- function(dbcon, xml, test=FALSE){
     gather(var, value) %>%
     mutate(variable=as.numeric(substr(var, 5, 6))) %>%
     mutate(column=gsub('_..', '', var)) %>%
-    merge(read.csv('hh/jmap.csv')) %>%
+    merge(read.csv('migrations/jmap.csv')) %>%
     mutate(uuid=paste0(survey_uuid, '/', variable), var=NULL, variable=NULL, 
            parent_uuid=survey_uuid, survey_uuid=survey_uuid) %>%
     spread(column, value) %>%
