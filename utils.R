@@ -196,7 +196,7 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
   
   if (test){
     for (i in 1:nrow(df)){
-      dbSendQuery(con$con, paste0("DELETE FROM ", tablename, " WHERE uuid = '", df$uuid, "';"))
+      dbSendQuery(con$con, paste0("DELETE FROM ", tablename, " WHERE uuid = '", df$uuid[i], "';"))
     }
   }
 
@@ -206,16 +206,12 @@ insertDF <- function(con, df, tablename, test=FALSE, log=TRUE){
 
     for (u in df$uuid){
       if(u %in% uuids$uuid){
-        stop(paste0('uuid ', u, 'already exists in ', tablename))
+        stop(paste0('uuid ', u, ' already exists in ', tablename))
       }
     }
   }
   
   dbSendQuery(con$con, str)
-  
-  if (log){
-  #Write to migration audit table
-  }
   
 }
 

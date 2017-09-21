@@ -9,7 +9,12 @@ setwd('D:/Documents and Settings/mcooper/GitHub/vs-migrate/')
 db <- 'local'
 #db <- 'prod'
 
-forms <- 'eplot_15_may_2016_v1'#'agriculture_survey_15_may_2016'#'house_hold_15_may_2016_v1'##c('house_hold_15_may_2016_v1', , 'ffs_yields_paddy_maize_17_sep_2015_v1')
+test <- FALSE
+#test <- TRUE
+
+forms <- c('vs_household_secv_15_may_2016', 'ffs_yields_dry_weight_17_sep_2015_v1', 
+           'ffs_yields_paddy_maize_17_sep_2015_v1', 'eplot_15_may_2016_v1', 
+           'agriculture_survey_15_may_2016', 'house_hold_15_may_2016_v1')
 
 options(stringsAsFactors = F)
 
@@ -20,12 +25,10 @@ fhcon <- src_postgres(dbname = dbname, host = host, port = port, user = user, pa
 if (db=='prod'){
   source('production_connection.R')
   dbcon <- src_postgres(dbname = dbname, host = host, port = port, user = user, password = password)
-  test <- FALSE
 }
 if (db=='local'){
   source('local_connection.R')
   dbcon <- src_postgres(dbname = dbname, host = host, port = port, user = user, password = password)
-  test <- TRUE
 }
 
 xforms <- tbl(fhcon, 'odk_logger_xform') %>%
@@ -64,6 +67,12 @@ for (i in 1:nrow(instances)){
   }
   if (instances$xform_id[i]==41){
     eplot_15_may_2016_v1(dbcon, instances$xml[i], test=test)
+  }
+  if (instances$xform_id[i]==33){
+    ffs_yields_dry_weight_17_sep_2015_v1(dbcon, instances$xml[i], test=test)
+  }
+  if (instances$xform_id[i]==47){
+    vs_household_secv_15_may_2016(dbcon, instances$xml[i], test=test)
   }
 }
 
