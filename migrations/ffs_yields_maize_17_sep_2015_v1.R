@@ -180,7 +180,7 @@ ffs_yields_maize_17_sep_2015_v1 <- function(dbcon, xml, test=FALSE){
   insertDF(dbcon, yields, 'yields', test)
   insertDF(dbcon, piiname_yields, 'piiname_yields', test)
   insertDF(dbcon, piigeo_yields, 'piigeo_yields', test)
-  insertDF(dbcon, yields, 'yields', test)
+  insertDF(dbcon, yields_field, 'yields_field', test)
 
   if (!test){
     dbSendQuery(dbcon$con, paste0('INSERT INTO migration_audit VALUES (\'', 

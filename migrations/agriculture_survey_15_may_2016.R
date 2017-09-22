@@ -208,16 +208,21 @@ agriculture_survey_15_may_2016 <- function(dbcon, xml, test=FALSE){
     agric_field_b <- bind_rows(agric_field_b, tempdf)
   }
   
-  agric_field_c <- data.frame()
-  for (i in xml$fd3_group_label[names(xml$fd3_group_label)=='fd3_repeat']){
-    field_no <- i$fd3_field_id
-    ag2a_10_1 <- i$fd3_2$fd3_2_1
-    ag2a_10_2 <- i$fd3_2$fd3_2_2
-    ag2a_10_3 <- i$fd3_2$fd3_2_3
-    
-    tempdf <- vs.data.frame(field_no, ag2a_10_1, ag2a_10_2, ag2a_10_3)
-    
-    agric_field_c <- bind_rows(agric_field_c, tempdf)
+  
+  if (length(xml$fd3_group_label[names(xml$fd3_group_label)=='fd3_repeat'])==0){
+    agric_field_c <- data.frame(field_no=agric_field_b$field_no)
+  } else{
+    agric_field_c <- data.frame()
+    for (i in xml$fd3_group_label[names(xml$fd3_group_label)=='fd3_repeat']){
+      field_no <- i$fd3_field_id
+      ag2a_10_1 <- i$fd3_2$fd3_2_1
+      ag2a_10_2 <- i$fd3_2$fd3_2_2
+      ag2a_10_3 <- i$fd3_2$fd3_2_3
+      
+      tempdf <- vs.data.frame(field_no, ag2a_10_1, ag2a_10_2, ag2a_10_3)
+      
+      agric_field_c <- bind_rows(agric_field_c, tempdf)
+    }
   }
   
   agric_field_d <- data.frame()
