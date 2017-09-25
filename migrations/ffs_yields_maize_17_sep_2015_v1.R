@@ -143,7 +143,7 @@ ffs_yields_maize_17_sep_2015_v1 <- function(dbcon, xml, test=FALSE){
   piigeo_yields_field$gpsne_lat <- mapply(FUN=makeGps, sign=yields_field$gpsne_ns, value=yields_field$gpsne_lat)
   piigeo_yields_field$gpsne_long <- mapply(FUN=makeGps, sign=yields_field$gpsne_ew, value=yields_field$gpsne_long)
   
-  yields_field[ , c('uuid', 'field_name', 'gpsne_lat', 'gpsne_long', 'gpsne_ew', 'gpsne_ns')] <- NULL
+  yields_field[ , c('field_name', 'gpsne_lat', 'gpsne_long', 'gpsne_ew', 'gpsne_ns')] <- NULL
   
   ##################################
   #Implement Rules across columns

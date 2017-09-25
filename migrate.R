@@ -54,7 +54,7 @@ for (s in scripts){
   source(paste0('migrations/', s))
 }
 
-for (i in 1:nrow(instances)){
+for (i in nrow(instances):1){
   cat(i, i/nrow(instances), '\n')
   if (instances$xform_id[i]==34){
     ffs_yields_maize_17_sep_2015_v1(dbcon, instances$xml[i], test=test)
