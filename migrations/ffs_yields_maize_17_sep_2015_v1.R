@@ -5,6 +5,10 @@ library(RPostgreSQL)
 options(stringsAsFactors = FALSE)
 
 ffs_yields_maize_17_sep_2015_v1 <- function(dbcon, xml, test=FALSE){
+  assign('codedf', read_xls('migrations/FarmField_Yields_Paddy_Maize.17.09.2015.xls', 
+                            sheet = 'choices'),
+         envir=.GlobalEnv)
+  
   xml <- xmlToList(xml)
   
   ###########
@@ -173,6 +177,43 @@ ffs_yields_maize_17_sep_2015_v1 <- function(dbcon, xml, test=FALSE){
   
   yields_field[ , c("yield_b_109_name", "yield_b_114_name", "yield_b_119_name", 
                     "yield_b_11_136a_calc")] <- NULL
+  
+  #################################
+  #Translate Categorical Variables
+  #################################
+  
+  #Note: Some of these cannot be translated without changing the data type in the database
+  
+  yields$district <- ct(yields$district, 'districts', country=yields$country, region=yields$region)
+  yields$region <- ct(yields$region, 'regions', country=yields$country)
+  
+  if(!is.null(yields_field$yield_b_13_9)){
+    yields_field$yield_b_13_9 <- mapply(FUN=ct, code=yields_field$yield_b_13_9, list.name='erosion')
+  }
+  if(!is.null(yields_field$yield_b_109)){
+    yields_field$yield_b_109 <- mapply(FUN=ct, code=yields_field$yield_b_109, list.name='fertilizer')
+  }
+  if(!is.null(yields_field$yield_b_114)){
+    yields_field$yield_b_114 <- mapply(FUN=ct, code=yields_field$yield_b_114, list.name='fertilizer')
+  }
+  # if(!is.null(yields_field$yield_b_128_c)){
+  #   yields_field$yield_b_128_c <- mapply(FUN=ct, code=yields_field$yield_b_128_c, list.name='field_size')
+  # }
+  if(!is.null(yields_field$yield_b_119)){
+    yields_field$yield_b_119 <- mapply(FUN=ct, code=yields_field$yield_b_119, list.name='organic')
+  }
+  # if(!is.null(yields_field$yield_b_126_b)){
+  #   yields_field$yield_b_126_b <- mapply(FUN=ct, code=yields_field$yield_b_126_b, list.name='primary_factor')
+  # }
+  # if(!is.null(yields_field$yield_b_126)){
+  #   yields_field$yield_b_126 <- mapply(FUN=ct, code=yields_field$yield_b_126, list.name='quality')
+  # }
+  # if(!is.null(yields_field$yield_b_103_a)){
+  #   yields_field$yield_b_103_a <- mapply(FUN=ct, code=yields_field$yield_b_103_a, list.name='seeds')
+  # }
+  # if(!is.null(yields_field$yield_b_13_8)){
+  #   yields_field$yield_b_13_8 <- mapply(FUN=ct, code=yields_field$yield_b_13_8, list.name='slope')
+  # }
   
   ##############
   #Insert Data
