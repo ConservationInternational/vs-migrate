@@ -25,7 +25,7 @@ getHHref <- function(dbcon, country_, landscape_no_, eplot_no_, hh_no_){
     insertlist <- list(new_id, country_, landscape_no_, eplot_no_, hh_no_)
     names(insertlist) <- c('id', 'country', 'landscape_no', 'eplot_no', 'hh_no')
     
-    dbSendQuery(dbcon$con, paste0("INSERT INTO ref_householdcd  VALUES (", 
+    dbSendQuery(dbcon$con, paste0("INSERT INTO ref_household  VALUES (", 
                                   insertCollapse(insertlist, vars),
                                   ");"))
     
