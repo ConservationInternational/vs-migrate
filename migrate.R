@@ -1,16 +1,17 @@
 library(dplyr)
+library(dbplyr)
 library(XML)
 library(RPostgreSQL)
 library(readxl)
 library(tidyr)
 
-setwd('D:/Documents and Settings/mcooper/GitHub/vs-migrate/')
+setwd('C://Git/vs-migrate/')
 
-db <- 'local'
-#db <- 'prod'
+#db <- 'local'
+db <- 'prod'
 
-test <- FALSE
-#test <- TRUE
+#test <- FALSE
+test <- TRUE
 
 forms <- c('vs_household_secv_15_may_2016', 'ffs_yields_dry_weight_17_sep_2015_v1', 
            'ffs_yields_paddy_maize_17_sep_2015_v1', 'eplot_15_may_2016_v1', 
