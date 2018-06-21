@@ -10,8 +10,9 @@ setwd('C://Git/vs-migrate/')
 #db <- 'local'
 db <- 'prod'
 
-#test <- FALSE
-test <- TRUE
+#This variable determines whether the migration audit will be written or not
+test <- FALSE
+#test <- TRUE
 
 forms <- c('vs_household_secv_15_may_2016', 'ffs_yields_dry_weight_17_sep_2015_v1', 
            'ffs_yields_paddy_maize_17_sep_2015_v1', 'eplot_15_may_2016_v1', 
@@ -32,17 +33,20 @@ if (db=='local'){
   dbcon <- src_postgres(dbname = dbname, host = host, port = port, user = user, password = password)
 }
 
+#Get a list of all xform ids
 xforms <- tbl(fhcon, 'odk_logger_xform') %>%
   select(id, id_string) %>%
   collect
 
 ids <- xforms$id[xforms$id_string %in% forms]
 
+#Get a list of all previous migration IDs
 migrations <- tbl(dbcon, 'migration_audit') %>%
   select(uuid) %>% 
   collect %>% 
   .$uuid
 
+#Get all forms that do not have an ID in migration_audit
 instances <- tbl(fhcon, 'odk_logger_instance') %>%
   filter((!uuid %in% migrations)) %>%
   select(xml, uuid, xform_id) %>%

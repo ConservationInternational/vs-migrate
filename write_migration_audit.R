@@ -1,3 +1,8 @@
+######################################
+#This is the script that was used to write the original migration audit
+#It is here for documentation purposes
+#####################################
+
 library(dplyr)
 library(XML)
 library(RPostgreSQL)
