@@ -10,9 +10,9 @@ setwd('C://Git/vs-migrate/')
 #db <- 'local'
 db <- 'prod'
 
-#This variable determines whether the migration audit will be written or not
-test <- FALSE
-#test <- TRUE
+#This variable determines whether 1) the script will overwrite exisiting data and 2) the migration will be added to the migration_audit table.
+#test <- FALSE
+test <- TRUE
 
 forms <- c('vs_household_secv_15_may_2016', 'ffs_yields_dry_weight_17_sep_2015_v1', 
            'ffs_yields_paddy_maize_17_sep_2015_v1', 'eplot_15_may_2016_v1', 
