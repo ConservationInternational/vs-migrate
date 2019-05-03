@@ -7,8 +7,8 @@ library(tidyr)
 
 setwd('C://Git/vs-migrate/')
 
-#db <- 'local'
-db <- 'prod'
+db <- 'local'
+#db <- 'prod'
 
 #This variable determines whether 1) the script will overwrite exisiting data and 2) the migration will be added to the migration_audit table.
 #test <- FALSE
